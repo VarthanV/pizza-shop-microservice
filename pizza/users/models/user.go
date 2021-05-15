@@ -14,5 +14,6 @@ type UserRepository interface {
 	CreateUser(ctx context.Context, user User) error
 	GetUserById(ctx context.Context, id string) (User, error)
 	LoginUser(ctx context.Context, email string, password string) (token TokenDetails)
-	GetUserByEmail(ctx context.Context,email string)(*User) 
+	GetUserByEmail(ctx context.Context,email string)(*User)
+	GetUserByPhoneNumberOrEmail(ctx context.Context ,email string , phoneNumber string) (*User)
 }

@@ -54,6 +54,23 @@ func (r mysqlrepository) GetUserByEmail(ctx context.Context, email string) (*mod
 	err := r.db.QueryRow(sql, email).Scan(&rowUser.ID, &rowUser.Name ,&rowUser.Email,&rowUser.Password,&rowUser.PhoneNumber)
 	if err != nil {
 		glog.Fatalf("Unable to query from user table %s" , err)
+		return nil
 	}
 	return &rowUser
+}
+
+func (r mysqlrepository) GetUserByPhoneNumberOrEmail(ctx context.Context ,email string , phoneNumber string) (*models.User) {
+	var user models.User
+	sql := `
+		SELECT * from users u
+		WHERE email = ?
+		AND phone_number = ?
+	`
+	err := r.db.QueryRow(sql, email,phoneNumber).Scan(&user.Email,&user.PhoneNumber)
+	if err != nil {
+		glog.Fatalf("Unable to query from user table %s ...." , err)
+		return nil
+	}
+	return &user
+	
 }

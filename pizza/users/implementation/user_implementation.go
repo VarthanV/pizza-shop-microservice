@@ -26,10 +26,10 @@ func NewService(repo models.UserRepository, tokenRepo models.TokenRepository) us
 }
 
 func (s service) CreateUser(ctx context.Context, user models.User) error {
-	rowUser := s.dbRepository.GetUserByEmail(ctx, user.Email)
+	rowUser := s.dbRepository.GetUserByPhoneNumberOrEmail(ctx, user.Email,user.PhoneNumber)
 
 	if rowUser != nil {
-		glog.Info("User exists with the same email...")
+		glog.Info("User exists with the same email or phone number...")
 		return  errors.New("conflict")
 	}
 	// Do some cleanup

@@ -33,6 +33,7 @@ func (u UserHandler) SignUpUser(c *gin.Context) {
 		Name:     request.Name,
 		Email:    request.Email,
 		Password: request.Password,
+		PhoneNumber: request.PhoneNumber,
 	}
 
 	err = u.userService.CreateUser(c, user)
