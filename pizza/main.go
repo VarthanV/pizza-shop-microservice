@@ -1,9 +1,11 @@
 package main
 
 import (
+	"context"
 	"database/sql"
-	_ "github.com/go-sql-driver/mysql"
 	"os"
+
+	_ "github.com/go-sql-driver/mysql"
 
 	"github.com/VarthanV/pizza/handlers"
 	"github.com/VarthanV/pizza/users"
@@ -34,7 +36,10 @@ func  main(){
 			Password: "", // no password set
 			DB:       0,  // use default DB
 		})
-	
+		// Make a ping
+		ping := redisClient.Ping(context.TODO())
+		result , _ := ping.Result()
+		glog.Info("Result from redis ping...",result)
 	}
 	var usersvc users.Service
 	{
@@ -54,9 +59,10 @@ func  main(){
 	glog.Info("Init handlers....")
 	userHandler := handlers.NewUserHandler(usersvc)
 	router := gin.Default()
-	// Mapping signup route with its respective handler.... Will be refactored later
-	router.POST("/signup",userHandler.SignUpUser)
+	//TODO: Mapping signup route with its respective handler.... Will be refactored later
+	router.POST("/signup",userHandler.SignUpUserHandler)
 	router.GET("/test",userHandler.Test)
+	router.POST("/login",userHandler.LoginUserHandler)
 
 	// Run the router
 	router.Run(":8080")
