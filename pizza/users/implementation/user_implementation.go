@@ -28,8 +28,9 @@ func NewService(repo models.UserRepository, tokenRepo models.TokenRepository) us
 func (s service) CreateUser(ctx context.Context, user models.User) error {
 	rowUser := s.dbRepository.GetUserByEmail(ctx, user.Email)
 
-	if rowUser.Name != "" {
-		glog.Info("No user exists with that email...")
+	if rowUser != nil {
+		glog.Info("User exists with the same email...")
+		return  errors.New("conflict")
 	}
 	// Do some cleanup
 	user.ID = uuid.NewString()
@@ -45,6 +46,7 @@ func (s service) CreateUser(ctx context.Context, user models.User) error {
 	if err != nil {
 		return err
 	}
+	glog.Infof("Created user with email %s  successfully",user.Email)
 	return nil
 }
 

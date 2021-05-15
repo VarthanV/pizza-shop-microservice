@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 
+
 	"github.com/VarthanV/pizza/users/models"
 	"github.com/golang/glog"
 )
@@ -15,20 +16,20 @@ type mysqlrepository struct {
 	db *sql.DB
 }
 
-func NewMySqlRepository(db *sql.DB) models.UserRepository {
+func NewMySqlRepository(db *sql.DB)  (repo models.UserRepository ,err error) {
 	return &mysqlrepository{
 		db: db,
-	}
+	},nil
 }
 
 func (r mysqlrepository) CreateUser(ctx context.Context, user models.User) error {
 	sql := `
 		INSERT INTO users (id ,name ,email,password,phone_number)
-		VALUES ($1,$2,$3,$4,$5)
+		VALUES (?,?,?,?,?)
 	`
-	_, err := r.db.Exec(sql, user.ID, user.Name, user.Email, user.Password, user.PhoneNumber)
+	_, err := r.db.ExecContext(ctx,sql, user.ID, user.Name, user.Email, user.Password, user.PhoneNumber)
 	if err != nil {
-		glog.Error("Unable to insert user with the email", user.Email)
+		glog.Error("Unable to insert user.... ",err)
 		return err
 	}
 	return nil
@@ -44,22 +45,15 @@ func (r mysqlrepository) LoginUser(ctx context.Context, email string, password s
 	return models.TokenDetails{}
 }
 
-func (r mysqlrepository) GetUserByEmail(ctx context.Context, email string) (user models.User) {
+func (r mysqlrepository) GetUserByEmail(ctx context.Context, email string) (*models.User) {
 	var rowUser models.User
 	sql := `
-		SELECT * from users
-		WHERE email = $1
+		SELECT * from users u
+		WHERE email = ?
 	`
-	rows, err := r.db.Query(sql, email)
+	err := r.db.QueryRow(sql, email).Scan(&rowUser.ID, &rowUser.Name ,&rowUser.Email,&rowUser.Password,&rowUser.PhoneNumber)
 	if err != nil {
-		glog.Info("Error while fetching data from database")
+		glog.Fatalf("Unable to query from user table %s" , err)
 	}
-	defer rows.Close()
-	for rows.Next() {
-		err = rows.Scan(&rowUser)
-		if err != nil {
-			glog.Error("Unable to scan rowss....", err)
-		}
-	}
-	return rowUser
+	return &rowUser
 }
