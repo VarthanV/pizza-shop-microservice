@@ -41,7 +41,7 @@ func (r mysqlrepository) GetUserById(ctx context.Context, id string) (models.Use
 }
 
 func (r mysqlrepository) LoginUser(ctx context.Context, email string, password string) (token models.TokenDetails) {
-
+	
 	return models.TokenDetails{}
 }
 
@@ -53,7 +53,7 @@ func (r mysqlrepository) GetUserByEmail(ctx context.Context, email string) (*mod
 	`
 	err := r.db.QueryRow(sql, email).Scan(&rowUser.ID, &rowUser.Name ,&rowUser.Email,&rowUser.Password,&rowUser.PhoneNumber)
 	if err != nil {
-		glog.Fatalf("Unable to query from user table %s" , err)
+		glog.Error("Unable to query from user table %s" , err)
 		return nil
 	}
 	return &rowUser

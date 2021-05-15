@@ -55,6 +55,16 @@ func (s service) GetUserById(ctx context.Context, id string) (user models.User, 
 	return models.User{}, ErrUnableToGetUser
 }
 
-func (s service) LoginUser(ctx context.Context, email string, password string) {
-
+func (s service) LoginUser(ctx context.Context, email string, password string) (*models.TokenDetails, error) {
+	user := s.dbRepository.GetUserByEmail(ctx,email)
+	// Compare password
+	isValid := utils.CheckPasswordHash(password,user.Password)
+	if !isValid {
+		return nil ,errors.New("login credentials invalid")
+	}
+	tokenDetails ,err := s.tokenRepository.CreateToken(ctx,*user)
+	if err !=nil{
+		glog.Errorf("Unable to generate token for the user... %f",err)
+	}
+	return &tokenDetails ,nil
 }

@@ -1,16 +1,16 @@
 package models
 
+import "context"
+
 type TokenDetails struct {
 	AccessToken  string
 	RefreshToken string
-	AccessUuid   string
-	RefreshUuid  string
-	AtExpires    int64
-	RtExpires    int64
+	AtExpiresAt int64
+	RtExpiresAt int64
 }
 
 
 type TokenRepository interface {
-	CreateToken(user User) (tokenDetails TokenDetails,err error)
+	CreateToken( ctx context.Context ,user User) (tokenDetails TokenDetails,err error)
 	VerifyTokenValidity(token TokenDetails) (isValid bool)
 }
