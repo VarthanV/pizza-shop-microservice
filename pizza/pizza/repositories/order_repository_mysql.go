@@ -21,7 +21,7 @@ func NewOrderRepository(db *sql.DB) models.OrderRepository {
 
 func (o orderrepository) CreateOrder(ctx context.Context, order models.Order) (err error) {
 	sql := `
-	# INSERT into orders(uuid,user_id,total,order_status) 
+	INSERT into orders(uuid,user_id,total,order_status) 
 	values(?,?,?,?)
 	
 	`
