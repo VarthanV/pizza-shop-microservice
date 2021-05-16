@@ -3,6 +3,7 @@ package utils
 import (
 	"time"
 
+	"github.com/VarthanV/pizza/shared"
 	"github.com/VarthanV/pizza/users/models"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/golang/glog"
@@ -10,18 +11,28 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func HashPassword(password string) (string, error) {
+type utilityservice struct {
+	constants *shared.SharedConstants
+}
+
+func NewUtilityService (constants *shared.SharedConstants) UtilityService{
+	return &utilityservice{
+		constants: constants,
+	}
+}
+
+func (u utilityservice) HashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
 	return string(bytes), err
 }
 
-func CheckPasswordHash(password, hash string) bool {
+func (u utilityservice) CheckPasswordHash(password, hash string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 	return err == nil
 }
 
-func CreateToken(user models.User) (accessToken string, refreshToken string, atExpiresAt int64, rtExpiresAt int64 , err error) {
-	fiftyMinutesFromNow := time.Now().Add(time.Minute * 5).Unix()
+func (u utilityservice) CreateToken(user models.User) (accessToken string, refreshToken string, atExpiresAt int64, rtExpiresAt int64, err error) {
+	fiveHoursFromNow := time.Now().Add(time.Hour * 5).Unix()
 	fiveDaysFromNow := time.Now().Add(time.Hour * 24 * 5).Unix()
 
 	// AccessToken claims
@@ -29,14 +40,14 @@ func CreateToken(user models.User) (accessToken string, refreshToken string, atE
 	atClaims["authorized"] = true
 	atClaims["user_id"] = user.ID
 	atClaims["email"] = user.Email
-	atClaims["exp"] = fiftyMinutesFromNow
+	atClaims["exp"] = fiveHoursFromNow
 
 	at := jwt.NewWithClaims(jwt.SigningMethodHS256, atClaims)
 	// Sign it with the secret hash
-	acToken, err := at.SignedString([]byte("supersecreeett"))
+	acToken, err := at.SignedString([]byte(u.constants.AccessTokenSecretKey))
 	if err != nil {
 		glog.Fatal("Error while creating access token...", err)
-		return "","",0, 0 ,err
+		return "", "", 0, 0, err
 	}
 	// RefreshToken Claims
 	rtClaims := jwt.MapClaims{}
@@ -47,10 +58,10 @@ func CreateToken(user models.User) (accessToken string, refreshToken string, atE
 	rtClaims["ref_uuid"] = uuid.New().String()
 
 	rt := jwt.NewWithClaims(jwt.SigningMethodHS256, rtClaims)
-	refToken, err := rt.SignedString([]byte("supersecreetrefesh"))
+	refToken, err := rt.SignedString([]byte(u.constants.RefreshTokenSecretKey))
 	if err != nil {
 		glog.Fatal("Error while creating refresh token...", err)
-		return "","",0, 0 ,err
+		return "", "", 0, 0, err
 	}
-	return acToken, refToken,fiftyMinutesFromNow,fiveDaysFromNow, nil
+	return acToken, refToken, fiveHoursFromNow, fiveDaysFromNow, nil
 }
