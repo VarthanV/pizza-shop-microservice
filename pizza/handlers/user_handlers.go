@@ -28,6 +28,12 @@ func (u UserHandler) SignUpUserHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "error": "Please make sure if you have sent all the fields right"})
 		return
 	}
+	err = request.Validate()
+	if err != nil {
+		glog.Errorf("Error validating request body %s",err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "error": err.Error()})
+		return
+	}
 	// If the request is ok create a user
 	user := models.User{
 		Name:        request.Name,
@@ -46,7 +52,7 @@ func (u UserHandler) SignUpUserHandler(c *gin.Context) {
 		return
 	}
 	// If everything went well return a 201 response
-	c.JSON(http.StatusCreated, gin.H{"goto": "login"})
+	c.JSON(http.StatusCreated, gin.H{"status":"ok", "goto": "login"})
 }
 
 func (u UserHandler) LoginUserHandler(c *gin.Context) {
@@ -57,11 +63,17 @@ func (u UserHandler) LoginUserHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "error": "Please make sure if you have sent all the fields right"})
 		return
 	}
+	err = request.Validate()
+	if err != nil {
+		glog.Errorf("Error validating request body %s",err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "error": err.Error()})
+		return
+	}
 	tokenDetails, err := u.userService.LoginUser(c, request.Email, request.Password)
 	if err != nil || tokenDetails == nil {
-		glog.Error("Unable to Login the user...",err)
+		glog.Error("Unable to Login the user...", err)
 		c.AbortWithStatus(http.StatusForbidden)
-		return 
+		return
 	}
 
 	loginResponse := UserLoginResponse{

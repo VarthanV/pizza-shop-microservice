@@ -9,7 +9,5 @@ require (
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/golang/glog v0.0.0-20210429001901-424d2337a529
 	github.com/google/uuid v1.2.0
-	github.com/satori/go.uuid v1.2.0
-	github.com/twinj/uuid v1.0.0
 	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
 )
