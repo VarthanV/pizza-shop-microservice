@@ -6,6 +6,7 @@ import (
 	"os"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/joho/godotenv"
 
 	"github.com/VarthanV/pizza/handlers"
 	"github.com/VarthanV/pizza/middlewares"
@@ -26,11 +27,15 @@ func main() {
 	var db *sql.DB
 	{
 		var err error
+		err = godotenv.Load()
+		if err != nil {
+			glog.Fatalf("Unable to load environment variables")
+		}
 		// Initialize mysql database
 		//<username>:<pw>@tcp(<HOST>:<port>)/<dbname>
 		db, err = sql.Open("mysql", "root:root123@tcp(localhost:3306)/pizza_shop")
 		if err != nil {
-			glog.Error("Unable to connect to db...", err)
+			glog.Fatalf("Unable to connect to db...", err)
 			os.Exit(-1)
 		}
 	}
@@ -49,8 +54,8 @@ func main() {
 	}
 
 	constants := shared.SharedConstants{
-		AccessTokenSecretKey:  "Foo",
-		RefreshTokenSecretKey: "Bar",
+		AccessTokenSecretKey:  os.Getenv("ACCESS_TOKEN_SECRET_KEY"),
+		RefreshTokenSecretKey: os.Getenv("REFRESH_TOKEN_SECRET_KEY"),
 	}
 	var utilityservice utils.UtilityService
 	{
@@ -59,10 +64,9 @@ func main() {
 	var tokenService users.TokenService
 	var usersvc users.Service
 
-	
 	{
 		dbRepository, err := repositories.NewMySqlRepository(db)
-		rdbRepository := repositories.NewRedisRepository(redisClient,utilityservice)
+		rdbRepository := repositories.NewRedisRepository(redisClient, utilityservice)
 		tokenService = implementation.NewTokenService(rdbRepository)
 
 		if err != nil {
@@ -73,7 +77,7 @@ func main() {
 			glog.Error("Unable to initialize rdb Repository....")
 		}
 		glog.Info("Initializing user service....")
-		usersvc = implementation.NewService(dbRepository, tokenService,utilityservice)
+		usersvc = implementation.NewService(dbRepository, tokenService, utilityservice)
 	}
 
 	var pizzaService pizza.Service
@@ -88,7 +92,7 @@ func main() {
 	// Initializing middleware
 	var middleware middlewares.Service
 	{
-		
+
 		middleware = middlewares.NewMiddleware(&constants, tokenService)
 	}
 	router := gin.Default()
