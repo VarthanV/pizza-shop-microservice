@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"os"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -31,9 +32,23 @@ func main() {
 		if err != nil {
 			glog.Fatalf("Unable to load environment variables")
 		}
+		// Initializing DB Constants
+		dbConnection := shared.DBConnection{
+			DBName:   os.Getenv("DB_NAME"),
+			Password: os.Getenv("DB_PASSWORD"),
+			Host:     os.Getenv("DB_HOST"),
+			Port:     os.Getenv("DB_PORT"),
+			Username: os.Getenv("DB_USERNAME"),
+		}
 		// Initialize mysql database
 		//<username>:<pw>@tcp(<HOST>:<port>)/<dbname>
-		db, err = sql.Open("mysql", "root:root123@tcp(localhost:3306)/pizza_shop")
+		connectionString := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s",
+			dbConnection.Username,
+			dbConnection.Password,
+			dbConnection.Host,
+			dbConnection.Port,
+			dbConnection.DBName)
+		db, err = sql.Open("mysql", connectionString)
 		if err != nil {
 			glog.Fatalf("Unable to connect to db...", err)
 			os.Exit(-1)
