@@ -12,3 +12,9 @@ type DBConnection struct {
 	Port     string
 	DBName   string
 }
+
+const (
+	OrderStatusCreated    = "order-created"
+	OrderStatusProcessing = "order-processing"
+	OrderStatusDelivered  = "order-delivered"
+)

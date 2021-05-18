@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"fmt"
+	"github.com/gin-gonic/gin"
 	"time"
 
 	"github.com/VarthanV/pizza/shared"
@@ -64,4 +66,10 @@ func (u utilityservice) CreateToken(user models.User) (accessToken string, refre
 		return "", "", 0, 0, err
 	}
 	return acToken, refToken, fiveHoursFromNow, fiveDaysFromNow, nil
+}
+
+func (u utilityservice) GetUserFromContext(c *gin.Context) (userID string) {
+	user, _ := c.Get("userID")
+	ID := fmt.Sprintf("%v", user)
+	return ID
 }

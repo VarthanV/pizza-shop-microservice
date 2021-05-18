@@ -36,15 +36,16 @@ values(?,?,?,?)
 	return nil
 }
 
-func (c cartrepository) EditItem(ctx context.Context, cartItemId int, itemId int, quantity int, price int) error {
+func (c cartrepository) EditItem(ctx context.Context, cartItemId int, itemId int, quantity int, price int, userId string) error {
 	s := `
 	UPDATE cart
 	set pizza_id = ?,
-	quantity = ?
+	quantity = ?,
 	price = ?
 	WHERE id = ?
+	AND user_id = ?
 `
-	_, insertErr := c.db.ExecContext(ctx, s, itemId, quantity, price, cartItemId)
+	_, insertErr := c.db.ExecContext(ctx, s, itemId, quantity, price, cartItemId, userId)
 	if insertErr != nil {
 		glog.Errorf("Unable to update cart with ID %d  %s", cartItemId, insertErr)
 	}

@@ -5,3 +5,8 @@ type AddToCartRequest struct {
 	Quantity int `json:"quantity"`
 	Price    int `json:"price"`
 }
+
+type EditCartRequest struct {
+	ID int `json:"id"`
+	AddToCartRequest
+}

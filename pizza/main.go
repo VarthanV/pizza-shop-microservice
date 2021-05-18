@@ -131,6 +131,7 @@ func main() {
 	{
 		authenticated.GET("/", cartHandlers.GetCart)
 		authenticated.POST("/add", cartHandlers.AddToCart)
+		authenticated.PUT("/edit", cartHandlers.EditCart)
 	}
 
 	// Run the router

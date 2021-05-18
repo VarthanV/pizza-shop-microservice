@@ -47,8 +47,8 @@ func (c cartservice) AddItem(ctx context.Context, itemId int, userId string, qua
 	return nil
 }
 
-func (c cartservice) EditItem(ctx context.Context, cartItemId int, itemId int, quantity int, price int) error {
-	err := c.cartRepo.EditItem(ctx, cartItemId, itemId, quantity, price)
+func (c cartservice) EditItem(ctx context.Context, cartItemId int, itemId int, quantity int, price int, userId string) error {
+	err := c.cartRepo.EditItem(ctx, cartItemId, itemId, quantity, price, userId)
 	if err != nil {
 		glog.Errorf("Error updating cart %s", err)
 		return err

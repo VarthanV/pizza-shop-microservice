@@ -58,3 +58,27 @@ func (cart CartHandler) AddToCart(c *gin.Context) {
 	c.Status(http.StatusCreated)
 	return
 }
+
+func (cart CartHandler) EditCart(c *gin.Context) {
+	var request EditCartRequest
+	err := c.BindJSON(&request)
+	if err != nil {
+		glog.Errorf("Unable to bind %s", err)
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "eror": err.Error()})
+		return
+	}
+	user, _ := c.Get("userID")
+	userID := fmt.Sprintf("%v", user)
+	err = request.Validate()
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "error": err.Error()})
+		return
+	}
+	err = cart.cartService.EditItem(c, request.ID, request.PizzaID, request.Quantity, request.Price, userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "error": err.Error()})
+		return
+	}
+	c.Status(http.StatusCreated)
+	return
+}
