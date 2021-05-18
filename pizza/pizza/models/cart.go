@@ -11,10 +11,10 @@ type Cart struct {
 }
 
 type CartQueryResult struct {
-	PizzaName    string
-	Price        int
-	Quantity     int
-	IsVegeterian int
+	PizzaName    string `json:"pizza_name"`
+	Price        int `json:"price"`
+	Quantity     int `json:"quantity"`
+	IsVegeterian int `json:"is_vegeterian"`
 }
 
 type CartRepository interface {

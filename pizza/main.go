@@ -127,9 +127,10 @@ func main() {
 		pizzaroutes.GET("", pizzaHandlers.GetAllPizzas)
 	}
 	// Group authRoute
-	authenticated := router.Group("/orders", middleware.VerifyTokenMiddleware)
+	authenticated := router.Group("/cart", middleware.VerifyTokenMiddleware)
 	{
-		authenticated.POST("/create", cartHandlers.AddToCart)
+		authenticated.GET("/", cartHandlers.GetCart)
+		authenticated.POST("/add", cartHandlers.AddToCart)
 	}
 
 	// Run the router

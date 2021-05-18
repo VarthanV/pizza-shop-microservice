@@ -72,7 +72,7 @@ func (c cartrepository) GetCart(ctx context.Context, userId string) (*[]models.C
 	SELECT
   	p.name,
 	c.price,
-	c.quantity
+	c.quantity,
   	p.is_vegeterian
 	FROM
   	cart AS c
