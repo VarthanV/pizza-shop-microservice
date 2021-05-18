@@ -3,16 +3,15 @@ package models
 import "context"
 
 type Order struct {
-	ID        int
-	OrderUUID string
-	UserID    string
-	Total     int
+	ID          int
+	OrderUUID   string
+	UserID      string
+	Total       int
 	OrderStatus string
-
 }
 
 type OrderRepository interface {
-	CreateOrder(ctx context.Context ,order Order) (err error)
+	CreateOrder(ctx context.Context, order Order) (err error)
 	GetOrderByUUID(ctx context.Context, uuid string) (*Order, error)
-	GetOrdersByUserID(ctx context.Context,userId int) (*[]Order,  error)
+	GetOrdersByUserID(ctx context.Context, userId int) (*[]Order, error)
 }

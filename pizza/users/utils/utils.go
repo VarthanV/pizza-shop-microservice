@@ -15,7 +15,7 @@ type utilityservice struct {
 	constants *shared.SharedConstants
 }
 
-func NewUtilityService (constants *shared.SharedConstants) UtilityService{
+func NewUtilityService(constants *shared.SharedConstants) UtilityService {
 	return &utilityservice{
 		constants: constants,
 	}

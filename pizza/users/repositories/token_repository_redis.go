@@ -11,14 +11,14 @@ import (
 )
 
 type redisrepository struct {
-	rdb *redis.Client
+	rdb   *redis.Client
 	utils utils.UtilityService
 }
 
-func NewRedisRepository(rdb *redis.Client ,utilityservice utils.UtilityService) models.TokenRepository {
+func NewRedisRepository(rdb *redis.Client, utilityservice utils.UtilityService) models.TokenRepository {
 	return &redisrepository{
-		rdb: rdb,
-		utils : utilityservice,
+		rdb:   rdb,
+		utils: utilityservice,
 	}
 }
 
@@ -51,13 +51,13 @@ func (r redisrepository) CreateToken(ctx context.Context, user models.User) (tok
 	return token, nil
 }
 
-func (r redisrepository) VerifyTokenValidity(ctx context.Context, acToken string ) (isValid bool) {
-	// If the token exists in the redis store then it is valid type of token needed to be 
+func (r redisrepository) VerifyTokenValidity(ctx context.Context, acToken string) (isValid bool) {
+	// If the token exists in the redis store then it is valid type of token needed to be
 	// checked will be passed in context
 	token := r.rdb.Get(ctx, acToken)
-	result ,err := token.Result()
+	result, err := token.Result()
 	if err != nil {
-		glog.Errorf("Unable to get the token %f",err)
+		glog.Errorf("Unable to get the token %f", err)
 		return false
 	}
 	return result != ""

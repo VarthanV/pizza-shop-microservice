@@ -56,6 +56,10 @@ func (m Middleware) VerifyTokenMiddleware(c *gin.Context) {
 		if _, ok := t.Claims.(jwt.Claims); !ok && !t.Valid {
 			return nil, nil
 		}
+		claims, ok := t.Claims.(jwt.MapClaims)
+		if ok {
+			c.Set("userID", claims["user_id"])
+		}
 		c.Next()
 		return []byte(m.constants.AccessTokenSecretKey), nil
 	})

@@ -30,7 +30,7 @@ func (u UserHandler) SignUpUserHandler(c *gin.Context) {
 	}
 	err = request.Validate()
 	if err != nil {
-		glog.Errorf("Error validating request body %s",err.Error())
+		glog.Errorf("Error validating request body %s", err.Error())
 		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "error": err.Error()})
 		return
 	}
@@ -52,7 +52,7 @@ func (u UserHandler) SignUpUserHandler(c *gin.Context) {
 		return
 	}
 	// If everything went well return a 201 response
-	c.JSON(http.StatusCreated, gin.H{"status":"ok", "goto": "login"})
+	c.JSON(http.StatusCreated, gin.H{"status": "ok", "goto": "login"})
 }
 
 func (u UserHandler) LoginUserHandler(c *gin.Context) {
@@ -65,7 +65,7 @@ func (u UserHandler) LoginUserHandler(c *gin.Context) {
 	}
 	err = request.Validate()
 	if err != nil {
-		glog.Errorf("Error validating request body %s",err.Error())
+		glog.Errorf("Error validating request body %s", err.Error())
 		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "error": err.Error()})
 		return
 	}

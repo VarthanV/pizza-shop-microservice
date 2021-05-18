@@ -20,13 +20,13 @@ func NewPizzaHandler(service pizza.Service) *PizzaHandler {
 
 func (p PizzaHandler) GetAllPizzas(c *gin.Context) {
 	var isVeg int
-	isVegetarian := c.DefaultQuery("is_vegeterian","false")
+	isVegetarian := c.DefaultQuery("is_vegeterian", "false")
 	if isVegetarian == "true" {
 		isVeg = 1
 	} else {
 		isVeg = 0
 	}
-	glog.Infof("Is vegeterian: %d ?",isVeg)
+	glog.Infof("Is vegeterian: %d ?", isVeg)
 	pizzas, err := p.pizzaService.GetAllPizzas(c, isVeg)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "error": err.Error()})

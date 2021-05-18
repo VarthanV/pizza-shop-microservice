@@ -7,7 +7,7 @@ import (
 	"github.com/VarthanV/pizza/users/models"
 )
 
-type tokenservice struct{
+type tokenservice struct {
 	tokenRepo models.TokenRepository
 }
 
@@ -17,12 +17,12 @@ func NewTokenService(tokenRepo models.TokenRepository) users.TokenService {
 	}
 }
 
-func (t tokenservice) CreateToken(ctx context.Context, user models.User) (tokenDetails models.TokenDetails, err error){
-	token ,err := t.tokenRepo.CreateToken(ctx,user)
-	return token ,err
+func (t tokenservice) CreateToken(ctx context.Context, user models.User) (tokenDetails models.TokenDetails, err error) {
+	token, err := t.tokenRepo.CreateToken(ctx, user)
+	return token, err
 }
 
-func (t tokenservice) VerifyTokenValidity(ctx context.Context, acToken string) (isValid bool){
-	valid := t.tokenRepo.VerifyTokenValidity(ctx,acToken)
+func (t tokenservice) VerifyTokenValidity(ctx context.Context, acToken string) (isValid bool) {
+	valid := t.tokenRepo.VerifyTokenValidity(ctx, acToken)
 	return valid
 }
