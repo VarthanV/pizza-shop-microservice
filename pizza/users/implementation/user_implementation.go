@@ -19,11 +19,11 @@ type service struct {
 	utils        utils.UtilityService
 }
 
-func NewService(repo models.UserRepository, tokenService users.TokenService ,utilityservice utils.UtilityService) users.Service {
+func NewService(repo models.UserRepository, tokenService users.TokenService, utilityservice utils.UtilityService) users.Service {
 	return &service{
 		dbRepository: repo,
 		tokenService: tokenService,
-		utils: utilityservice,
+		utils:        utilityservice,
 	}
 }
 

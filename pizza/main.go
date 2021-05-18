@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/VarthanV/pizza/pizza/services"
 	"os"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -100,10 +101,15 @@ func main() {
 		pizzaRepo := pizzaRepo.NewPizzaMysqlRepository(db)
 		pizzaService = pizzaImplementaion.NewService(pizzaRepo)
 	}
-
+	var cartService services.CartService
+	{
+		cartRepo := pizzaRepo.NewCartRepository(db)
+		cartService = pizzaImplementaion.NewCartService(cartRepo)
+	}
 	glog.Info("Init handlers....")
 	userHandler := handlers.NewUserHandler(usersvc)
 	pizzaHandlers := handlers.NewPizzaHandler(pizzaService)
+	cartHandlers := handlers.NewCartHandler(cartService)
 	// Initializing middleware
 	var middleware middlewares.Service
 	{
@@ -123,7 +129,7 @@ func main() {
 	// Group authRoute
 	authenticated := router.Group("/orders", middleware.VerifyTokenMiddleware)
 	{
-		authenticated.POST("/test")
+		authenticated.POST("/create", cartHandlers.AddToCart)
 	}
 
 	// Run the router

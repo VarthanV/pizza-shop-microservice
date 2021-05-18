@@ -12,12 +12,12 @@ type pizzaservice struct {
 }
 
 func NewService(repo models.PizzaRepository) pizza.Service {
-	return  &pizzaservice{
+	return &pizzaservice{
 		dbRepository: repo,
 	}
 }
 
-func (s pizzaservice) GetAllPizzas(ctx context.Context, isVeg int) (pizza[]models.Pizza, err error){
-	pizzas ,err:= s.dbRepository.GetAllPizzas(ctx, isVeg)
-	return pizzas,err
+func (s pizzaservice) GetAllPizzas(ctx context.Context, isVeg int) (pizza []models.Pizza, err error) {
+	pizzas, err := s.dbRepository.GetAllPizzas(ctx, isVeg)
+	return pizzas, err
 }

@@ -7,5 +7,5 @@ import (
 )
 
 type Service interface {
-	GetAllPizzas(ctx context.Context, isVeg int) (pizza []models.Pizza ,err error)
+	GetAllPizzas(ctx context.Context, isVeg int) (pizza []models.Pizza, err error)
 }
