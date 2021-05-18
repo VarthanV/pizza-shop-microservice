@@ -18,6 +18,17 @@ func NewCartHandler(svc services.CartService) *CartHandler {
 	}
 }
 
+func (cart CartHandler) GetCart(c *gin.Context) {
+	user, _ := c.Get("userID")
+	userID := fmt.Sprintf("%v", user)
+	cartResult, err := cart.cartService.GetCart(c, userID)
+	if err != nil {
+		c.JSON(http.StatusBadGateway, gin.H{"status": "ok", "cart": []string{}})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"status": "ok", "cart": cartResult})
+}
+
 func (cart CartHandler) AddToCart(c *gin.Context) {
 	var request AddToCartRequest
 	err := c.BindJSON(&request)
