@@ -3,6 +3,7 @@ package repositories
 import (
 	"context"
 	"database/sql"
+	"errors"
 
 	"github.com/VarthanV/pizza/pizza/models"
 	"github.com/golang/glog"
@@ -16,6 +17,26 @@ func NewPizzaMysqlRepository(db *sql.DB) models.PizzaRepository {
 	return &repository{
 		db: db,
 	}
+}
+
+func (r repository) GetPizzaByID(ctx context.Context, id int) (resultPizza models.Pizza, err error) {
+	var pizza models.Pizza
+	query := `
+	SELECT * 
+	from pizzas
+	WHERE id = ?
+	`
+	row := r.db.QueryRowContext(ctx, query, id)
+	if row == nil {
+		glog.Errorf("Unable to get pizza with id %d %s", id, err)
+		return models.Pizza{}, errors.New("no pizza found ")
+	}
+	err = row.Scan(&pizza.ID, &pizza.Name, &pizza.Price, &pizza.IsVegeterian)
+	if err != nil {
+		glog.Errorf("Unable to scan the rows")
+		return models.Pizza{}, err
+	}
+	return pizza, nil
 }
 
 func (r repository) GetAllPizzas(ctx context.Context, isVegetarian int) (pizzas []models.Pizza, err error) {

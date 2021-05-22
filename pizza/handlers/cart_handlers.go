@@ -26,6 +26,10 @@ func (cart CartHandler) GetCart(c *gin.Context) {
 		c.JSON(http.StatusBadGateway, gin.H{"status": "ok", "cart": []string{}})
 		return
 	}
+	if len(*cartResult) == 0 {
+		c.JSON(http.StatusOK, gin.H{"status": "ok", "cart": []string{}})
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{"status": "ok", "cart": cartResult})
 }
 

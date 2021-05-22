@@ -3,19 +3,22 @@ package implementation
 import (
 	"context"
 	"errors"
+	"github.com/VarthanV/pizza/pizza"
 	"github.com/VarthanV/pizza/pizza/models"
 	"github.com/VarthanV/pizza/pizza/services"
 	"github.com/golang/glog"
 )
 
 type cartservice struct {
-	cartRepo models.CartRepository
+	cartRepo     models.CartRepository
+	pizzaservice pizza.Service
 }
 
-func NewCartService(repo models.CartRepository) services.CartService {
+func NewCartService(repo models.CartRepository, svc pizza.Service) services.CartService {
 
 	return &cartservice{
-		cartRepo: repo,
+		cartRepo:     repo,
+		pizzaservice: svc,
 	}
 }
 
@@ -39,7 +42,13 @@ func (c cartservice) AddItem(ctx context.Context, itemId int, userId string, qua
 		glog.Errorf("The item already exists in the users cart")
 		return errors.New("item-conflict")
 	}
-	err := c.cartRepo.AddItem(ctx, itemId, userId, quantity, price)
+	//Get the price of the pizza and multiply the quantity
+	pizza, err := c.pizzaservice.GetPizzaBYID(ctx, itemId)
+	if err != nil {
+		return err
+	}
+	itemPrice := int(pizza.Price) * quantity
+	err = c.cartRepo.AddItem(ctx, itemId, userId, quantity, itemPrice)
 	if err != nil {
 		glog.Errorf("Error adding item to cart %s", err)
 		return err
@@ -48,7 +57,12 @@ func (c cartservice) AddItem(ctx context.Context, itemId int, userId string, qua
 }
 
 func (c cartservice) EditItem(ctx context.Context, cartItemId int, itemId int, quantity int, price int, userId string) error {
-	err := c.cartRepo.EditItem(ctx, cartItemId, itemId, quantity, price, userId)
+	pizza, err := c.pizzaservice.GetPizzaBYID(ctx, itemId)
+	if err != nil {
+		return err
+	}
+	itemPrice := int(pizza.Price) * quantity
+	err = c.cartRepo.EditItem(ctx, cartItemId, itemId, quantity, itemPrice, userId)
 	if err != nil {
 		glog.Errorf("Error updating cart %s", err)
 		return err
@@ -62,4 +76,9 @@ func (c cartservice) DeleteItem(ctx context.Context, cartItemId int, userId stri
 		return err
 	}
 	return nil
+}
+
+func (c cartservice) MakeItemInactive(ctx context.Context, cartItemID int) error {
+	err := c.cartRepo.MakeItemInactive(ctx, cartItemID)
+	return err
 }

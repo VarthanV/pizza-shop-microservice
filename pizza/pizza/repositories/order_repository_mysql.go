@@ -19,18 +19,27 @@ func NewOrderRepository(db *sql.DB) models.OrderRepository {
 	}
 }
 
-func (o orderrepository) CreateOrder(ctx context.Context, order models.Order) (err error) {
+func (o orderrepository) CreateOrder(ctx context.Context, order models.Order, userID string, cart *[]models.CartQueryResult) (err error) {
+	/*
+		1) Start a transaction -> TODO:To figure how to inject a trasnaction instead of sql.DB.
+		2) Insert into orders table
+		3) Convert all the cart items into order item
+		4) Return success or err based on the outcome
+		5) Start a go_routine parallel to make the cart_items inactive
+
+	*/
+
 	sql := `
-	INSERT into orders(uuid,user_id,total,order_status) 
-	values(?,?,?,?)
+	INSERT into orders(uuid,user_id,order_status) 
+	values(?,?,?)
 	
 	`
-	_, insertErr := o.db.ExecContext(ctx, sql, order.OrderUUID, order.UserID, order.Total, order.OrderStatus)
+	_, insertErr := o.db.ExecContext(ctx, sql, order.OrderUUID, userID, order.OrderStatus)
 	if insertErr != nil {
 		glog.Error("Error while inserting into orders table..", insertErr)
-		return insertErr
+
 	}
-	return nil
+	return insertErr
 }
 
 func (o orderrepository) GetOrderByUUID(ctx context.Context, uuid string) (*models.Order, error) {
@@ -52,10 +61,9 @@ func (o orderrepository) GetOrderByUUID(ctx context.Context, uuid string) (*mode
 func (o orderrepository) GetOrdersByUserID(ctx context.Context, userId int) (*[]models.Order, error) {
 	var orders []models.Order
 	var order models.Order
-
 	sql := `
-	SELECT *
-	FROM orders
+	SELECT o.id
+	FROM orders o
 	WHERE user_id = ?
 	`
 	rows, err := o.db.QueryContext(ctx, sql, userId)

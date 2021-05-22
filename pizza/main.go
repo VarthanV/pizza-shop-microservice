@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/VarthanV/pizza/migrations"
 	"github.com/VarthanV/pizza/pizza/services"
 	"os"
 
@@ -104,12 +105,29 @@ func main() {
 	var cartService services.CartService
 	{
 		cartRepo := pizzaRepo.NewCartRepository(db)
-		cartService = pizzaImplementaion.NewCartService(cartRepo)
+		cartService = pizzaImplementaion.NewCartService(cartRepo, pizzaService)
 	}
+	var orderItemService services.OrderItemService
+	{
+		orderItemRepo := pizzaRepo.NewOrderItemRepository(db)
+		orderItemService = pizzaImplementaion.NewOrderItemService(orderItemRepo)
+	}
+	var orderService pizza.OrderService
+	{
+		orderRepo := pizzaRepo.NewOrderRepository(db)
+
+		orderService = pizzaImplementaion.NewOrderService(orderRepo, cartService, orderItemService)
+	}
+	glog.Info("Init Tables...")
+	ctx := context.Background()
+	m := migrations.NewMigrationService(db, ctx)
+	//Run the migrations
+	m.Run(ctx)
 	glog.Info("Init handlers....")
 	userHandler := handlers.NewUserHandler(usersvc)
 	pizzaHandlers := handlers.NewPizzaHandler(pizzaService)
 	cartHandlers := handlers.NewCartHandler(cartService)
+	orderHandlers := handlers.NewOrderHandler(orderService, orderItemService, utilityservice)
 	// Initializing middleware
 	var middleware middlewares.Service
 	{
@@ -127,11 +145,15 @@ func main() {
 		pizzaroutes.GET("", pizzaHandlers.GetAllPizzas)
 	}
 	// Group authRoute
-	authenticated := router.Group("/cart", middleware.VerifyTokenMiddleware)
+	cartRouterGroup := router.Group("/cart", middleware.VerifyTokenMiddleware)
 	{
-		authenticated.GET("/", cartHandlers.GetCart)
-		authenticated.POST("/add", cartHandlers.AddToCart)
-		authenticated.PUT("/edit", cartHandlers.EditCart)
+		cartRouterGroup.GET("/", cartHandlers.GetCart)
+		cartRouterGroup.POST("/", cartHandlers.AddToCart)
+		cartRouterGroup.PUT("/", cartHandlers.EditCart)
+	}
+	orderRouterGroup := router.Group("/order", middleware.VerifyTokenMiddleware)
+	{
+		orderRouterGroup.POST("/", orderHandlers.CreateOrder)
 	}
 
 	// Run the router

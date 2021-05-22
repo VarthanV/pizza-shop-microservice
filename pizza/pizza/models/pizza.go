@@ -11,6 +11,7 @@ type Pizza struct {
 
 type PizzaRepository interface {
 	GetAllPizzas(ctx context.Context, isVegetarian int) (pizzas []Pizza, err error)
+	GetPizzaByID(ctx context.Context, id int) (pizza Pizza, err error)
 	// GetPizzaInPriceRangeLessThan(ctx context.Context, price uint) (pizzas []Pizza)
 	// GetPizzaInPriceRangeGreaterThan(ctx context.Context, price int) (pizzas []Pizza)
 }

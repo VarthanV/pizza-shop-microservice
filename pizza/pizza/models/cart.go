@@ -11,7 +11,9 @@ type Cart struct {
 }
 
 type CartQueryResult struct {
+	ID           int    `json:"int"`
 	PizzaName    string `json:"pizza_name"`
+	PizzaID      int    `json:"pizza_id"`
 	Price        int    `json:"price"`
 	Quantity     int    `json:"quantity"`
 	IsVegeterian int    `json:"is_vegeterian"`
@@ -23,4 +25,5 @@ type CartRepository interface {
 	EditItem(ctx context.Context, cartItemId int, itemId int, quantity int, price int, userId string) error
 	DeleteItem(ctx context.Context, cartItemId int, userId string) error
 	GetCartItem(ctx context.Context, itemId int, userId string) *Cart
+	MakeItemInactive(ctx context.Context, itemId int) error
 }

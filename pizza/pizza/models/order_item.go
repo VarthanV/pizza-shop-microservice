@@ -21,7 +21,7 @@ type OrderItemQueryResult struct {
 type OrderItemRepository interface {
 	GetOrderItemByID(ctx context.Context, id int) (*OrderItem, error)
 	GetOrderItemsByOrderID(ctx context.Context, orderID int) (*[]OrderItem, error)
-	AddOrderItem(ctx context.Context, pizzaID int, orderID int, Quantity int, Price int) error
+	AddOrderItem(ctx context.Context, pizzaID int, orderUUID string, Quantity int, Price int) error
 	//	Orders once placed cannot be edited or deleted so no methods exposed for it ,
 	//	May be a internal method might exist in future
 }

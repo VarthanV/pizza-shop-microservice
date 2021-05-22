@@ -22,11 +22,11 @@ func (c cartrepository) AddItem(ctx context.Context, itemId int, userId string, 
 
 	s := `
 	INSERT into
-  cart (user_id, pizza_id, quantity, price)
-values(?,?,?,?)
+  cart (user_id, pizza_id, quantity, price,is_active)
+values(?,?,?,?,?)
 
 	`
-	_, insertErr := c.db.ExecContext(ctx, s, userId, itemId, quantity, price)
+	_, insertErr := c.db.ExecContext(ctx, s, userId, itemId, quantity, price, 1)
 	if insertErr != nil {
 		glog.Errorf("Unable to insert into the cart table ... %s", insertErr)
 		return insertErr
@@ -71,9 +71,11 @@ func (c cartrepository) GetCart(ctx context.Context, userId string) (*[]models.C
 
 	s := `
 	SELECT
+	c.id,
   	p.name,
 	c.price,
 	c.quantity,
+	p.id,
   	p.is_vegeterian
 	FROM
   	cart AS c
@@ -81,13 +83,15 @@ func (c cartrepository) GetCart(ctx context.Context, userId string) (*[]models.C
 	pizzas p on p.id = c.pizza_id
 	where
   	c.user_id = ?
+	AND 
+	c.is_active = 1
 	`
 	rows, err := c.db.QueryContext(ctx, s, userId)
 	if err != nil {
 		glog.Errorf("Unable to query the order rows %s", err)
 	}
 	for rows.Next() {
-		err := rows.Scan(&cart.PizzaName, &cart.Price, &cart.Quantity, &cart.IsVegeterian)
+		err := rows.Scan(&cart.ID, &cart.PizzaName, &cart.Price, &cart.Quantity, &cart.PizzaID, &cart.IsVegeterian)
 		if err != nil {
 			glog.Errorf("Unable to scan rows for the cart model %s", err)
 		}
@@ -98,6 +102,7 @@ func (c cartrepository) GetCart(ctx context.Context, userId string) (*[]models.C
 }
 
 func (c cartrepository) GetCartItem(ctx context.Context, itemId int, userId string) *models.Cart {
+	//TODO: Make the query more presentable
 	var cart models.Cart
 	s := `
 		SELECT c.id
@@ -111,4 +116,18 @@ func (c cartrepository) GetCartItem(ctx context.Context, itemId int, userId stri
 		return nil
 	}
 	return &cart
+}
+
+func (c cartrepository) MakeItemInactive(ctx context.Context, itemId int) error {
+	s := `
+	UPDATE cart
+	SET    
+	is_active = 0
+	WHERE id = ?
+	`
+	_, err := c.db.ExecContext(ctx, s, itemId)
+	if err != nil {
+		glog.Errorf("Error updating cart %s ", err)
+	}
+	return err
 }

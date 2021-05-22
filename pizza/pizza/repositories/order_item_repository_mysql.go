@@ -43,6 +43,16 @@ func (o orderitemrepository) GetOrderItemsByOrderID(ctx context.Context, orderID
 	panic("implement me")
 }
 
-func (o orderitemrepository) AddOrderItem(ctx context.Context, pizzaID int, orderID int, Quantity int, Price int) error {
-	panic("implement me")
+func (o orderitemrepository) AddOrderItem(ctx context.Context, pizzaID int, orderUUID string, quantity int, price int) error {
+	s := `
+	INSERT INTO order_item
+	(order_uuid,pizza_id,price,quantity)
+	values(?,?,?,?)
+	`
+	_, err := o.db.ExecContext(ctx, s, orderUUID, pizzaID, price, quantity)
+	if err != nil {
+		glog.Errorf("Unable to create order item %s", err)
+		return err
+	}
+	return nil
 }
