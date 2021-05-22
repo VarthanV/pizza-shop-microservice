@@ -2,6 +2,7 @@ package implementation
 
 import (
 	"context"
+	"errors"
 	"github.com/VarthanV/pizza/pizza/services"
 	"github.com/golang/glog"
 
@@ -31,9 +32,9 @@ func (o orderservice) CreateOrder(ctx context.Context, userID string) (err error
 		glog.Errorf("Unable to place for this user %s error getting cart items", userID)
 		return err
 	}
-	if cart == nil {
+	if len(*cart) == 0 {
 		glog.Errorf("The user doesnt have items in cart an order cannot be placed")
-		return err
+		return errors.New("no-cart")
 	}
 	order := models.Order{}
 	// Assign a uuid to the order

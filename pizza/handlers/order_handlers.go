@@ -31,7 +31,12 @@ func (o OrderHandler) CreateOrder(c *gin.Context) {
 	}
 	err := o.orderService.CreateOrder(c, userID)
 	if err != nil {
+		if err.Error() == "no-cart"{
+			c.AbortWithStatus(http.StatusNotFound)
+			return
+		}
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
+	c.Status(http.StatusCreated)
 }
