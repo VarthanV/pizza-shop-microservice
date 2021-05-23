@@ -34,7 +34,9 @@ func (m migrationservice) CreateUserTable(tx *sql.Tx) {
   name varchar(200) not null,
   email varchar(200) not null,
   password varchar(200) not null,
-  phone_number varchar(10) not null
+  phone_number varchar(10) not null,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 )
 `
 	glog.Info("Creating Table Users..")
@@ -51,7 +53,10 @@ func (m migrationservice) CreatePizzaTable(tx *sql.Tx) {
   id int not null AUTO_INCREMENT PRIMARY KEY ,
   name varchar(200) not null,
   price int not null default 100,
-  is_vegeterian int not null default 0
+  is_vegeterian int not null default 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+	                                
 );
 `
 	glog.Info("Creating Table Pizzas..")
@@ -71,6 +76,8 @@ func (m migrationservice) CreateCartTable(tx *sql.Tx) {
   price int not null ,
   user_id varchar(200) not null ,
   is_active int not null default 1,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY(user_id) references users(id),
   FOREIGN KEY (pizza_id) references pizzas(id)
 );`
@@ -89,6 +96,8 @@ func (m migrationservice) CreateOrderTable(tx *sql.Tx) {
 	uuid varchar(200) unique not null,
 	user_id varchar(200) not null,
 	order_status varchar(200) default 'Placed',
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ,
+  	updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 	FOREIGN KEY(user_id) references  users(id)                               
 )
 `
@@ -109,7 +118,9 @@ func (m migrationservice) CreateOrderItemTable(tx *sql.Tx) {
 	price int not null ,
 	quantity int not null ,
 	FOREIGN KEY (order_uuid) references  orders(uuid) ON DELETE  CASCADE ,
-	FOREIGN KEY(pizza_id) references pizzas(id)
+	FOREIGN KEY(pizza_id) references pizzas(id),
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ,
+  	updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 )
 `
 	glog.Info("Creating Table OrderItem...")
@@ -137,6 +148,24 @@ func (m migrationservice) CreateCartTotalTable(tx *sql.Tx) {
 	}
 }
 
+func(m migrationservice) CreateOrderStatusUpdateTable(tx *sql.Tx){
+	query := `
+	CREATE table if not exists order_status_update(
+	id int not null primary key,
+	order_uuid varchar(200) not null,
+	status varchar(200) not null ,
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ,
+  	updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	FOREIGN KEY(order_uuid) REFERENCES orders(uuid)
+	)
+`
+glog.Info("Creating Table OrderStatusUpdate")
+_,err := tx.ExecContext(m.ctx,query)
+if err != nil{
+	glog.Errorf("Unable to create OrderStatusUpdateTable %s",err)
+	handleError(tx)
+}
+}
 func (m migrationservice) Run(ctx context.Context) {
 	tx, _ := m.db.BeginTx(ctx, nil)
 
@@ -146,6 +175,7 @@ func (m migrationservice) Run(ctx context.Context) {
 	m.CreateOrderTable(tx)
 	m.CreateOrderItemTable(tx)
 	m.CreateCartTotalTable(tx)
+	m.CreateOrderStatusUpdateTable(tx)
 	tx.Commit()
 }
 
