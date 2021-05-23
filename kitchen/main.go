@@ -1,18 +1,22 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"os"
 
+	"github.com/VarthanV/kitchen/cooks"
+	cookimpl "github.com/VarthanV/kitchen/cooks/implementation"
+	"github.com/VarthanV/kitchen/mysql"
+	"github.com/VarthanV/kitchen/queue"
+	rimpl "github.com/VarthanV/kitchen/queue/implementation"
+	"github.com/VarthanV/kitchen/shared"
 	"github.com/gin-gonic/gin"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/golang/glog"
 	"github.com/joho/godotenv"
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/VarthanV/kitchen/shared"
-	"github.com/VarthanV/kitchen/cooks"
-	"github.com/VarthanV/kitchen/mysql"
-	cookimpl "github.com/VarthanV/kitchen/cooks/implementation"
+	"github.com/streadway/amqp"
 )
 
 func main() {
@@ -46,6 +50,25 @@ func main() {
 		}
 	}
 	glog.Info("Connected to mysql db.....")
+	// Msg queue
+
+	rabbitMqConnection, err := amqp.Dial(os.Getenv("RABBIT_MQ_CONNECTION_STRING"))
+	if err != nil {
+		glog.Fatalf("Unable to connect to rabbit mq %f", err)
+	}
+
+	// RMQ Channel
+	ch, err := rabbitMqConnection.Channel()
+	if err != nil {
+		glog.Fatalf("Unable to create a channel %f", err)
+	}
+
+	var queueService queue.QueueService
+	{
+		queueRepo := queue.NewRabbitRepository(ch)
+		queueService = rimpl.NewRabbitMQService(queueRepo)
+	}
+
 	var cookservice cooks.Service
 	{
 		cookRepo := mysql.NewCookMysqlRepo(db)
@@ -59,5 +82,7 @@ func main() {
 			"message": "pong",
 		})
 	})
+	ctx := context.Background()
+	queueService.ConsumeOrderDetails(ctx)
 	r.Run() // l
 }
