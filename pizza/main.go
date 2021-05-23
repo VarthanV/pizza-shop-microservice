@@ -4,14 +4,17 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/VarthanV/pizza/message_queue"
 	"github.com/VarthanV/pizza/migrations"
 	"github.com/VarthanV/pizza/pizza/services"
+	"github.com/streadway/amqp"
 	"os"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
 
 	"github.com/VarthanV/pizza/handlers"
+	rabbitmq "github.com/VarthanV/pizza/message_queue/implementation/rabbitmq"
 	"github.com/VarthanV/pizza/middlewares"
 	"github.com/VarthanV/pizza/pizza"
 	pizzaImplementaion "github.com/VarthanV/pizza/pizza/implementation"
@@ -70,6 +73,12 @@ func main() {
 		glog.Info("Result from redis ping...", result)
 	}
 
+
+	rabbitMqConnection,err := amqp.Dial(os.Getenv("RABBIT_MQ_CONNECTION_STRING"))
+	if err != nil {
+			glog.Fatalf("Unable to connect to rabbit mq %f",err)}
+
+	glog.Info("Connect to Rabbit MQ")
 	constants := shared.SharedConstants{
 		AccessTokenSecretKey:  os.Getenv("ACCESS_TOKEN_SECRET_KEY"),
 		RefreshTokenSecretKey: os.Getenv("REFRESH_TOKEN_SECRET_KEY"),
@@ -77,6 +86,15 @@ func main() {
 	var utilityservice utils.UtilityService
 	{
 		utilityservice = utils.NewUtilityService(&constants)
+	}
+	ch ,err := rabbitMqConnection.Channel()
+	if err != nil {
+		glog.Fatalf("Unable to create a channel %f",err)
+	}
+	var queueService message_queue.QueueService
+	{
+		queueRepo := message_queue.NewRabbitRepository(ch)
+		queueService = rabbitmq.NewRabbitMQService(queueRepo)
 	}
 	var tokenService users.TokenService
 	var usersvc users.Service
@@ -116,7 +134,7 @@ func main() {
 	{
 		orderRepo := pizzaRepo.NewOrderRepository(db)
 
-		orderService = pizzaImplementaion.NewOrderService(orderRepo, cartService, orderItemService)
+		orderService = pizzaImplementaion.NewOrderService(orderRepo, cartService, orderItemService,queueService)
 	}
 	glog.Info("Init Tables...")
 	ctx := context.Background()
@@ -155,8 +173,10 @@ func main() {
 	{
 		orderRouterGroup.POST("/", orderHandlers.CreateOrder)
 	}
-
+	//Start consuming messages from the queue
+	queueService.ConsumeOrderStatus(ctx)
 	// Run the router
 	router.Run(":8080")
+
 
 }

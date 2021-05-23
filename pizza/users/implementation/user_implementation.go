@@ -59,6 +59,9 @@ func (s service) GetUserById(ctx context.Context, id string) (user models.User, 
 
 func (s service) LoginUser(ctx context.Context, email string, password string) (*models.TokenDetails, error) {
 	user := s.dbRepository.GetUserByEmail(ctx, email)
+	if user == nil {
+		return nil ,errors.New("email or password incorrect")
+	}
 	// Compare password
 	isValid := s.utils.CheckPasswordHash(password, user.Password)
 	if !isValid {

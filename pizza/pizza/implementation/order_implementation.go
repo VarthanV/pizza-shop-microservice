@@ -3,6 +3,7 @@ package implementation
 import (
 	"context"
 	"errors"
+	"github.com/VarthanV/pizza/message_queue"
 	"github.com/VarthanV/pizza/pizza/services"
 	"github.com/golang/glog"
 
@@ -15,13 +16,15 @@ type orderservice struct {
 	repo             models.OrderRepository
 	cartService      services.CartService
 	orderitemservice services.OrderItemService
+	queueService message_queue.QueueService
 }
 
-func NewOrderService(repo models.OrderRepository, cartsvc services.CartService, orderitemsvc services.OrderItemService) pizza.OrderService {
+func NewOrderService(repo models.OrderRepository, cartsvc services.CartService, orderitemsvc services.OrderItemService,quesvc message_queue.QueueService) pizza.OrderService {
 	return &orderservice{
 		repo:             repo,
 		cartService:      cartsvc,
 		orderitemservice: orderitemsvc,
+		queueService: quesvc,
 	}
 }
 
@@ -39,6 +42,7 @@ func (o orderservice) CreateOrder(ctx context.Context, userID string) (err error
 	order := models.Order{}
 	// Assign a uuid to the order
 	order.OrderUUID = uuid.NewString()
+	order.OrderStatus= "Placed"
 
 	/*1) Start a transaction.
 	2) Insert into orders table
@@ -65,6 +69,28 @@ func (o orderservice) CreateOrder(ctx context.Context, userID string) (err error
 			}
 		}()
 	}
+
+	//Dispatch the order details to queue
+	go func() {
+		//Represents a single order request entity
+		var orderDetail message_queue.OrderDetail
+		//The
+		 request:= message_queue.OrderQueueRequest{
+		 	OrderUUID: order.OrderUUID,
+		}
+		for _ , item := range  *cart{
+			orderDetail = message_queue.OrderDetail{
+				PizzaID: item.PizzaID,
+				Quantity: item.Quantity,
+			}
+			request.Details = append(request.Details,orderDetail)
+		}
+		err := o.queueService.PublishOrderDetails(ctx,request)
+		if err != nil {
+			glog.Errorf("Unable to dispatch the order details to the queue %f",err)
+		}
+	}()
+
 	return nil
 }
 
