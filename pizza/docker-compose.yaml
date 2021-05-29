@@ -50,6 +50,8 @@ services:
       - HOSTNAMERABBIT=rabbitmq
     networks:
       - pizza-default
+    ports: 
+        - 8080:8080  
     depends_on:
       - redis
       - mysql
