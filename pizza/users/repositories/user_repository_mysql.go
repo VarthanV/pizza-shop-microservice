@@ -47,7 +47,7 @@ func (r mysqlrepository) LoginUser(ctx context.Context, email string, password s
 func (r mysqlrepository) GetUserByEmail(ctx context.Context, email string) *models.User {
 	var rowUser models.User
 	sql := `
-		SELECT * from users u
+		SELECT u.id , u.name ,u.email,u.password, u.phone_number from users u
 		WHERE email = ?
 	`
 	err := r.db.QueryRowContext(ctx, sql, email).Scan(&rowUser.ID, &rowUser.Name, &rowUser.Email, &rowUser.Password, &rowUser.PhoneNumber)

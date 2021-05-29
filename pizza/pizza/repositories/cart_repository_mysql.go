@@ -107,7 +107,7 @@ func (c cartrepository) GetCartItem(ctx context.Context, itemId int, userId stri
 	s := `
 		SELECT c.id
 		FROM cart c
-		WHERE pizza_id = ? AND user_id= ?
+		WHERE pizza_id = ? AND user_id= ? AND is_active = 1
 	`
 	row := c.db.QueryRowContext(ctx, s, itemId, userId)
 	err := row.Scan(&cart.ID)

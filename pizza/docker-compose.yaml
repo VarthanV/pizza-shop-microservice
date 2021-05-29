@@ -1,0 +1,69 @@
+version: "3.9"
+
+services:
+  redis:
+    container_name: pizza_redis
+    image: redis
+    restart: on-failure
+    ports:
+      - 6380:6379
+    networks:
+      - pizza-default
+
+  mysql:
+    container_name: pizzasql
+    image: mysql
+    restart: "on-failure"
+    volumes:
+      - my-db:/var/lib/mysql
+    ports:
+      - 3306:3306
+      - 33060:33060
+    environment:
+      MYSQL_ROOT_PASSWORD: "root1234"
+      MYSQL_DATABASE: "pizza_shop"
+      MYSQL_PASSWORD: "root1234"
+    networks: 
+        - pizza-default  
+
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    container_name: pizza_rmq
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_DEFAULT_VHOST: "/"
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "5672"]
+      interval: 5s
+      timeout: 15s
+      retries: 1
+    networks:
+      - pizza-default
+  api:
+    build: .
+    restart: "on-failure"
+    environment:
+      - HOSTNAMERABBIT=rabbitmq
+    networks:
+      - pizza-default
+    ports: 
+        - 8080:8080  
+    depends_on:
+      - redis
+      - mysql
+      - rabbitmq
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+networks:
+  # Create a new Docker network.
+  pizza-default:
+    driver: bridge
+
+volumes:
+  my-db:
+  redis-data:

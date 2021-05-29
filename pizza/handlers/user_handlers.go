@@ -70,7 +70,7 @@ func (u UserHandler) LoginUserHandler(c *gin.Context) {
 		return
 	}
 	tokenDetails, err := u.userService.LoginUser(c, request.Email, request.Password)
-	if err != nil || tokenDetails == nil {
+	if err != nil {
 		glog.Error("Unable to Login the user...", err)
 		c.AbortWithStatus(http.StatusForbidden)
 		return
