@@ -43,8 +43,9 @@ func (r rmqimplementation) ConsumeOrderDetails(ctx context.Context) {
 			err := json.Unmarshal(m.Body, &req)
 			if err != nil {
 				glog.Error("Unable to unmarshal json.. ", err)
+				ctx.Done()
 			}
-			glog.Info("Consumed message .. ", req)
+			glog.Info("Consumed message .. ", req.OrderUUID)
 			ctx, cancel := context.WithDeadline(ctx, time.Now().Add(shared.DeadlineForOrderSubmitRequest))
 			c := make(chan bool)
 			go r.orderRequestService.SubmitOrderRequest(ctx, req, c)

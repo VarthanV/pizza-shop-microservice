@@ -58,28 +58,40 @@ func main() {
 		if err != nil {
 			glog.Fatalf("Unable to connect to db...", err)
 			os.Exit(-1)
+		} else {
+			err = db.Ping()
+			glog.Info("Error from ping is..",err)
 		}
 	}
+	glog.Info("Init Tables...")
+	ctx := context.Background()
+	m := migrations.NewMigrationService(db, ctx)
+	//Run the migrations
+	m.Run(ctx)
 	glog.Info("Connected to mysql db.....")
 	var redisClient *redis.Client
 	{
 		redisClient = redis.NewClient(&redis.Options{
-			Addr:     "localhost:6379",
+			Addr:     "pizza_redis:6379",
 			Password: "", // no password set
 			DB:       0,  // use default DB
 		})
 		// Make a ping
 		ping := redisClient.Ping(context.TODO())
-		result, _ := ping.Result()
+		result, err := ping.Result()
+		if err != nil {
+			glog.Info("Error connecting to redis...", err)
+		}
 		glog.Info("Result from redis ping...", result)
 	}
 
 	rabbitMqConnection, err := amqp.Dial(os.Getenv("RABBIT_MQ_CONNECTION_STRING"))
+	glog.Info("Connection string is....", os.Getenv("RABBIT_MQ_CONNECTION_STRING"))
 	if err != nil {
-		glog.Fatalf("Unable to connect to rabbit mq %f", err)
+		glog.Fatalf("Unable to connect to rabbit mq %f", &err)
 	}
 
-	glog.Info("Connect to Rabbit MQ")
+	glog.Info("Connected to Rabbit MQ")
 	constants := shared.SharedConstants{
 		AccessTokenSecretKey:  os.Getenv("ACCESS_TOKEN_SECRET_KEY"),
 		RefreshTokenSecretKey: os.Getenv("REFRESH_TOKEN_SECRET_KEY"),
@@ -142,11 +154,6 @@ func main() {
 
 		orderService = pizzaImplementaion.NewOrderService(orderRepo, cartService, orderItemService, queueService)
 	}
-	glog.Info("Init Tables...")
-	ctx := context.Background()
-	m := migrations.NewMigrationService(db, ctx)
-	//Run the migrations
-	m.Run(ctx)
 	glog.Info("Init handlers....")
 	userHandler := handlers.NewUserHandler(usersvc)
 	pizzaHandlers := handlers.NewPizzaHandler(pizzaService)

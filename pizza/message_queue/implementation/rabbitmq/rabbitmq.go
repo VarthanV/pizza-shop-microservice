@@ -44,7 +44,7 @@ func (r rabbitmqImplementation) ConsumeOrderStatus(ctx context.Context) {
 			}
 			err = r.orderupdateservice.UpdateOrderStatus(orderUpdateMsg.OrderUUID, orderUpdateMsg.OrderUUID)
 			if err != nil {
-				glog.Errorf("Unable to update the status of the order.. %s",err)
+				glog.Errorf("Unable to update the status of the order.. %s", err)
 			}
 		}
 	}()
