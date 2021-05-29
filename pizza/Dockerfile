@@ -16,6 +16,7 @@ ENV DB_PORT 3306
 ENV DB_HOST "pizzasql"
 # Yet to containerize rabbit-mq i have it setup as a seperate container in my machine so giving my ip address
 ENV RABBIT_MQ_CONNECTION_STRING  "amqp://guest:guest@pizza_rmq/" 
+ENV REDIS_HOST "pizza_redis"
 # Download all the dependencies
 RUN go get -d -v ./...
 

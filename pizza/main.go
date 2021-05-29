@@ -60,7 +60,7 @@ func main() {
 			os.Exit(-1)
 		} else {
 			err = db.Ping()
-			glog.Info("Error from ping is..",err)
+			glog.Info("Error from ping is..", err)
 		}
 	}
 	glog.Info("Init Tables...")
@@ -72,7 +72,7 @@ func main() {
 	var redisClient *redis.Client
 	{
 		redisClient = redis.NewClient(&redis.Options{
-			Addr:     "pizza_redis:6379",
+			Addr:     fmt.Sprintf(`%s:6379`, os.Getenv("REDIS_HOST")),
 			Password: "", // no password set
 			DB:       0,  // use default DB
 		})
