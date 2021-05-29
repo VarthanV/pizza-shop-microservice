@@ -7,10 +7,10 @@ import (
 	"os"
 
 	"github.com/VarthanV/kitchen/cooks"
-	cookimpl "github.com/VarthanV/kitchen/cooks/implementation"
+	implementation "github.com/VarthanV/kitchen/implementation"
 	"github.com/VarthanV/kitchen/mysql"
+	"github.com/VarthanV/kitchen/processes"
 	"github.com/VarthanV/kitchen/queue"
-	rimpl "github.com/VarthanV/kitchen/queue/implementation"
 	"github.com/VarthanV/kitchen/shared"
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
@@ -63,16 +63,20 @@ func main() {
 		glog.Fatalf("Unable to create a channel %f", err)
 	}
 
+	var orderRequestsvc processes.OrderRequestService
+	{
+		orderRequestsvc = implementation.NewOrderRequestImplementation()
+	}
 	var queueService queue.QueueService
 	{
 		queueRepo := queue.NewRabbitRepository(ch)
-		queueService = rimpl.NewRabbitMQService(queueRepo)
+		queueService = implementation.NewRabbitMQService(queueRepo, orderRequestsvc)
 	}
 
 	var cookservice cooks.Service
 	{
 		cookRepo := mysql.NewCookMysqlRepo(db)
-		cookservice = cookimpl.NewCookService(cookRepo)
+		cookservice = implementation.NewCookService(cookRepo)
 	}
 
 	glog.Info(cookservice)

@@ -22,8 +22,8 @@ func NewPizzaMysqlRepository(db *sql.DB) models.PizzaRepository {
 func (r repository) GetPizzaByID(ctx context.Context, id int) (resultPizza models.Pizza, err error) {
 	var pizza models.Pizza
 	query := `
-	SELECT * 
-	from pizzas
+	SELECT p.id ,p.name,p.price,p.is_vegeterian
+	from pizzas p
 	WHERE id = ?
 	`
 	row := r.db.QueryRowContext(ctx, query, id)
