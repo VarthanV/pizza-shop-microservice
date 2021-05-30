@@ -58,6 +58,7 @@ func (r rmqimplementation) ConsumeOrderDetails(ctx context.Context) {
 					else it will be updated when the cook takes up
 				*/
 				glog.Info("Consumed..", consumed)
+				ctx.Done()
 			case <-ctx.Done():
 				glog.Info("The context is done..")
 			}
