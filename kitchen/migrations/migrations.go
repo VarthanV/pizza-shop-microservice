@@ -19,11 +19,11 @@ func NewMigrationService(db *sql.DB) MigrationService {
 }
 
 func (m migrations) migrateCookTable(ctx context.Context) {
+	glog.Info("Creating Cooks table...")
 	s := `
 	CREATE TABLE IF NOT EXISTS cooks(
 		id int not null AUTO_INCREMENT PRIMARY KEY,
 		name varchar(200) not null,
-		is_vegeterian int default 0,
 		is_available int default 1
 	  );
 	`

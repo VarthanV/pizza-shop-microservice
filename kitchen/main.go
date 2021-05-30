@@ -12,8 +12,10 @@ import (
 	"github.com/VarthanV/kitchen/mysql"
 	"github.com/VarthanV/kitchen/processes"
 	"github.com/VarthanV/kitchen/queue"
+	"github.com/VarthanV/kitchen/seeder"
 	"github.com/VarthanV/kitchen/shared"
 	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis/v8"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/golang/glog"
 	"github.com/joho/godotenv"
@@ -67,15 +69,42 @@ func main() {
 	migrationsvc := migrations.NewMigrationService(db)
 	migrationsvc.RunMigrations(context.TODO())
 
+	isSeedingEnabled := os.Getenv("SEEDING_ENABLED")
+	// Seed data -> If not needed we can omit it env and write logic accordingly
+	if isSeedingEnabled == "true" {
+		seederSvc := seeder.NewSeederService(db)
+		seederSvc.SeedData()
+	}
+	var redisClient *redis.Client
+	{
+		redisClient = redis.NewClient(&redis.Options{
+			Addr:     fmt.Sprintf(`%s:%s`, os.Getenv("REDIS_HOST"), os.Getenv("REDIS_PORT")),
+			Password: "", // no password set
+			DB:       0,  // use default DB
+		})
+		// Make a ping
+		ping := redisClient.Ping(context.TODO())
+		result, err := ping.Result()
+		if err != nil {
+			glog.Info("Error connecting to redis...", err)
+		}
+		glog.Info("Result from redis ping...", result)
+	}
+
 	var cookservice cooks.Service
 	{
 		cookRepo := mysql.NewCookMysqlRepo(db)
 		cookservice = implementation.NewCookService(cookRepo)
 	}
 
+	var processOrderSvc processes.OrderProcessService
+	{
+		processOrderRepo := mysql.NewProcessOrderRepository(db)
+		processOrderSvc = implementation.NewProcessOrderImplementationService(processOrderRepo, cookservice)
+	}
 	var orderRequestsvc processes.OrderRequestService
 	{
-		orderRequestsvc = implementation.NewOrderRequestImplementation(cookservice)
+		orderRequestsvc = implementation.NewOrderRequestImplementation(cookservice, processOrderSvc)
 	}
 	var queueService queue.QueueService
 	{

@@ -11,12 +11,14 @@ import (
 )
 
 type ordersubmitimplementation struct {
-	cookservice cooks.Service
+	cookservice         cooks.Service
+	processOrderService processes.OrderProcessService
 }
 
-func NewOrderRequestImplementation(cooksvc cooks.Service) processes.OrderRequestService {
+func NewOrderRequestImplementation(cooksvc cooks.Service, pos processes.OrderProcessService) processes.OrderRequestService {
 	return &ordersubmitimplementation{
-		cookservice: cooksvc,
+		cookservice:         cooksvc,
+		processOrderService: pos,
 	}
 }
 
@@ -30,7 +32,7 @@ func (op ordersubmitimplementation) SubmitOrderRequest(ctx context.Context, requ
 		4) If no cook present cache the order details in the Redis store and send it first
 	*/
 	go func() {
-		op.cookservice.GetFirstAvailableCook(ctx, 1, cookChan)
+		op.cookservice.GetFirstAvailableCook(ctx, cookChan)
 		select {
 		case cook := <-cookChan:
 			glog.Info("Received cook is...", cook)
@@ -43,6 +45,7 @@ func (op ordersubmitimplementation) SubmitOrderRequest(ctx context.Context, requ
 					3) Make the cook availability to 0
 
 				*/
+				op.processOrderService.ProcessOrder(ctx, request, cook.ID)
 				return
 			} else {
 				c <- false

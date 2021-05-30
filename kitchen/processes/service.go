@@ -12,7 +12,7 @@ type PizzaProcessStatusService interface {
 type OrderProcessUpdateService interface {
 	UpdateOrderStatusToLocal(orderUUID string, status string, cookID string) error
 	// Updating status of  a single pizza item
-	UpdateOrderItemStatus(orderUUID string, status string, cookID string) error
+	UpdateOrderItemStatus(pizzaID int, status string, cookID string) error
 }
 
 type OrderPreparationService interface {
@@ -21,4 +21,8 @@ type OrderPreparationService interface {
 
 type OrderRequestService interface {
 	SubmitOrderRequest(ctx context.Context, request queue.OrderQueueRequest, c chan bool)
+}
+
+type OrderProcessService interface {
+	ProcessOrder(ctx context.Context, orderRequest queue.OrderQueueRequest, cookID int)
 }
