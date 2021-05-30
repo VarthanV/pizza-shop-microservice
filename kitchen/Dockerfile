@@ -13,6 +13,7 @@ ENV DB_PASSWORD "root1234"
 ENV DB_PORT 3306
 ENV DB_HOST "mysql"
 ENV RABBIT_MQ_CONNECTION_STRING  "amqp://guest:guest@host.docker.internal/" 
+ENV SEEDING_ENABLED "false"
 ENV REDIS_HOST "pizza_redis"
 # Download all the dependencies
 RUN go get -d -v ./...
