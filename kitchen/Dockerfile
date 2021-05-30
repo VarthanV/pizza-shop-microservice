@@ -14,7 +14,9 @@ ENV DB_PORT 3306
 ENV DB_HOST "mysql"
 ENV RABBIT_MQ_CONNECTION_STRING  "amqp://guest:guest@host.docker.internal/" 
 ENV SEEDING_ENABLED "false"
-ENV REDIS_HOST "pizza_redis"
+ENV REDIS_HOST "redis"
+ENV REDIS_PORT "6379"
+ENV PORT "8003"
 # Download all the dependencies
 RUN go get -d -v ./...
 
@@ -22,7 +24,7 @@ RUN go get -d -v ./...
 RUN go install -v ./...
 
 # This container exposes port 8082 to the outside world
-EXPOSE 8082
+EXPOSE 8003
 
 # Run the executable
 CMD ["kitchen"]

@@ -16,6 +16,15 @@ services:
       MYSQL_PASSWORD: "root1234"
     networks:
       - kitchen-network
+  redis:
+    image: redis
+    container_name: redis
+    restart: on-failure
+    ports: 
+      - 6381:6379
+    networks: 
+      - kitchen-network  
+      
   api:
     build: .
     container_name: kitchen_api
@@ -23,9 +32,10 @@ services:
     networks:
       - kitchen-network
     ports:
-      - 8083:8082
+      - 8003:8003
     depends_on:
       - mysql
+      - redis
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 

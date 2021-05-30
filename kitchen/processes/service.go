@@ -15,10 +15,6 @@ type OrderProcessUpdateService interface {
 	UpdateOrderItemStatus(pizzaID int, status string, cookID string) error
 }
 
-type OrderPreparationService interface {
-	PrepareOrder(pizzaID string, orderUUID string) error
-}
-
 type OrderRequestService interface {
 	SubmitOrderRequest(ctx context.Context, request queue.OrderQueueRequest, c chan bool)
 }
