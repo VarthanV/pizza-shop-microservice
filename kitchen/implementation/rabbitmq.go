@@ -60,10 +60,11 @@ func (r rmqimplementation) ConsumeOrderDetails(ctx context.Context) {
 				*/
 				glog.Info("Consumed..", consumed)
 				ctx.Done()
+				cancel()
 			case <-ctx.Done():
 				glog.Info("The context is done..")
+				cancel()
 			}
-			defer cancel()
 		}
 	}()
 }

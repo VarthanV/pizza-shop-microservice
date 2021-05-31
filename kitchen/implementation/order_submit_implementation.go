@@ -33,25 +33,23 @@ func (op ordersubmitimplementation) SubmitOrderRequest(ctx context.Context, requ
 	*/
 	go func() {
 		op.cookservice.GetFirstAvailableCook(ctx, cookChan)
-		select {
-		case cook := <-cookChan:
-			glog.Info("Received cook is...", cook)
-			if cook != nil {
-				c <- true
-				close(c)
-				/*
-					1) Assign the order to the cook
-					2) Start a go routine so that the cook can process the order.
-					3) Make the cook availability to 0
+		cook := <-cookChan
+		glog.Info("Received cook is...", cook)
+		if cook != nil {
+			c <- true
+			close(c)
+			/*
+				1) Assign the order to the cook
+				2) Start a go routine so that the cook can process the order.
+				3) Make the cook availability to 0
 
-				*/
-				op.processOrderService.ProcessOrder(ctx, request, cook.ID)
-				return
-			} else {
-				c <- false
-				close(c)
-				return
-			}
+			*/
+			op.processOrderService.ProcessOrder(ctx, request, cook.ID)
+			return
+		} else {
+			c <- false
+			close(c)
+			return
 		}
 
 	}()

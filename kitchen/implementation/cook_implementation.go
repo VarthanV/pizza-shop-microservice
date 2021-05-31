@@ -32,11 +32,10 @@ func (c cookservice) GetFirstAvailableCook(ctx context.Context, ch chan *models.
 	cookCh := make(chan *models.Cook, 1)
 	go func() {
 		c.cookRepo.GetFirstAvailableCook(ctx, cookCh)
-		select {
-		case cook := <-cookCh:
-			ch <- cook
-			close(ch)
-		}
+		cook := <-cookCh
+		ch <- cook
+		close(ch)
+
 	}()
 }
 

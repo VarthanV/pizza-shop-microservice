@@ -6,9 +6,6 @@ import (
 	"github.com/VarthanV/kitchen/queue"
 )
 
-type PizzaProcessStatusService interface {
-}
-
 type OrderProcessUpdateService interface {
 	UpdateOrderStatusToLocal(orderUUID string, status string, cookID string) error
 	// Updating status of  a single pizza item
