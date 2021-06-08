@@ -7,9 +7,15 @@ import (
 )
 
 type OrderProcessUpdateService interface {
-	UpdateOrderStatusToLocal(orderUUID string, status string, cookID string) error
+	MarkOrderComplete(ctx context.Context, orderUUID string, cookID int) error
 	// Updating status of  a single pizza item
-	UpdateOrderItemStatus(pizzaID int, status string, cookID string) error
+	MarkOrderItemComplete(ctx context.Context, pizzaID int, orderUUID string) error
+}
+
+type OrderProcessUpdateRepo interface {
+	UpdateOrderProcces(ctx context.Context, orderUUID string, cookID int) error
+	// Updating status of  a single pizza item
+	UpdateOrderItemProcess(ctx context.Context, pizzaID int, orderUUID string) error
 }
 
 type OrderRequestService interface {

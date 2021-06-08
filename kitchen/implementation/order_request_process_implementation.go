@@ -10,13 +10,12 @@ import (
 )
 
 type orderrequestprocessingimplementation struct {
-	processOrderRepo processes.OrderProcessRepository
-	
+	service processes.OrderProcessUpdateService
 }
 
-func NewProcessOrderRepository(repo processes.OrderProcessRepository) processes.OrderProcessService {
+func NewProcessOrderRepository(svc processes.OrderProcessUpdateService) processes.OrderProcessService {
 	return &orderrequestprocessingimplementation{
-		processOrderRepo: repo,
+		service: svc,
 	}
 }
 
@@ -29,6 +28,8 @@ func (op orderrequestprocessingimplementation) ProcessOrder(ctx context.Context,
 			*/
 			time.Sleep(3 * time.Second)
 			glog.Info("Pizza %s is ready...", item.PizzaID)
+			op.service.MarkOrderItemComplete(ctx, item.PizzaID, request.OrderUUID)
 		}
+		op.service.MarkOrderComplete(ctx, request.OrderUUID, cookID)
 	}()
 }
