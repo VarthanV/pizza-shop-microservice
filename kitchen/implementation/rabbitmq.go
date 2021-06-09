@@ -3,11 +3,9 @@ package implementation
 import (
 	"context"
 	"encoding/json"
-	"time"
 
 	"github.com/VarthanV/kitchen/processes"
 	"github.com/VarthanV/kitchen/queue"
-	"github.com/VarthanV/kitchen/shared"
 	"github.com/golang/glog"
 )
 
@@ -23,9 +21,9 @@ func NewRabbitMQService(repo queue.QueueRepository, orc processes.OrderRequestSe
 	}
 }
 
-func (r rmqimplementation) PublishOrderStatus(ctx context.Context) error {
+func (r rmqimplementation) PublishOrderStatus(ctx context.Context, orderUUID string, status string) error {
 	glog.Infof("Posting message to the Queue...")
-	err := r.repo.PublishOrderStatus(ctx)
+	err := r.repo.PublishOrderStatus(ctx, orderUUID, status)
 	return err
 
 }
@@ -47,23 +45,23 @@ func (r rmqimplementation) ConsumeOrderDetails(ctx context.Context) {
 				return
 			}
 			glog.Info("Consumed message .. ", req.OrderUUID)
-			ctx, cancel := context.WithDeadline(ctx, time.Now().Add(shared.DeadlineForOrderSubmitRequest))
+			ctx := context.Background()
 			c := make(chan bool)
 			go r.orderRequestService.SubmitOrderRequest(ctx, req, c)
 			select {
-			case consumed := <-c:
+			case isCookAvailable := <-c:
 				/*
 					If the kitchen has cooks who are free
 					we will send a response via this channel and update
 					the order status here itself if the value is true
 					else it will be updated when the cook takes up
 				*/
-				glog.Info("Consumed..", consumed)
-				ctx.Done()
-				cancel()
-			case <-ctx.Done():
-				glog.Info("The context is done..")
-				cancel()
+				glog.Info("Consumed..", isCookAvailable)
+				if isCookAvailable == true {
+					r.PublishOrderStatus(ctx, req.OrderUUID, "Processing")
+				} else {
+					glog.Info("Cook is not available will be updated once the order is process and complete")
+				}
 			}
 		}
 	}()

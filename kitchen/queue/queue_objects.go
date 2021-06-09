@@ -9,3 +9,8 @@ type OrderQueueRequest struct {
 	OrderUUID string        `json:"order_uuid"`
 	Details   []OrderDetail `json:"details"`
 }
+
+type OrderStatusUpdateRequest struct {
+	OrderUUID string `json:"order_uuid"`
+	Status    string `json:"status"`
+}

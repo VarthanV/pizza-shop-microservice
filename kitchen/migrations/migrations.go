@@ -39,9 +39,9 @@ func (m migrations) migratePizzaCompletionTable(ctx context.Context) {
 		CREATE TABLE IF NOT EXISTS pizza_completion(
 			id int not null AUTO_INCREMENT PRIMARY KEY,
 			pizza_id int not null,
-			order_uuid int not null,
+			order_uuid varchar(200) not null,
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ,
-			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 		)
 	`
 	_, err := m.db.ExecContext(ctx, s)
@@ -60,6 +60,7 @@ func (m migrations) migrateOrderCompletionTable(ctx context.Context) {
 			cook_id int not null,
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ,
 			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+			FOREIGN KEY (cook_id) REFERENCES cooks(id)
 		)	
 	`
 	_, err := m.db.ExecContext(ctx, s)

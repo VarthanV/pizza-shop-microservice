@@ -23,7 +23,7 @@ func NewOrderOrderProcessUpdateImplementation(repo processes.OrderProcessUpdateR
 func (o orderprocessupdateimplementation) MarkOrderComplete(ctx context.Context, orderUUID string, cookID int) error {
 	err = o.repo.UpdateOrderProcces(ctx, orderUUID, cookID)
 	if err != nil {
-		glog.Errorf("Error while updating order_process %s", err)
+		glog.Errorf("Error while updating order completion status %s", err)
 	}
 	return err
 }
@@ -31,7 +31,7 @@ func (o orderprocessupdateimplementation) MarkOrderComplete(ctx context.Context,
 func (o orderprocessupdateimplementation) MarkOrderItemComplete(ctx context.Context, pizzaID int, orderUUID string) error {
 	err = o.repo.UpdateOrderItemProcess(ctx, pizzaID, orderUUID)
 	if err != nil {
-		glog.Errorf("Error while updating order_item_process %s", err)
+		glog.Errorf("Error while updating pizza completion status %s", err)
 	}
 	return err
 }

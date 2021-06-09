@@ -23,7 +23,7 @@ func NewOrderProcessUpdateRepoMysql(db *sql.DB) processes.OrderProcessUpdateRepo
 
 func (o orderprocessupdatemysql) UpdateOrderProcces(ctx context.Context, orderUUID string, cookID int) error {
 	s = `
-		INSERT into order_processing_updates (order_uuid , cook_id)
+		INSERT into order_completion (order_uuid , cook_id)
 		VALUES (?,?)
 	`
 	_, err = o.db.ExecContext(ctx, s, orderUUID, cookID)
@@ -32,7 +32,7 @@ func (o orderprocessupdatemysql) UpdateOrderProcces(ctx context.Context, orderUU
 
 func (o orderprocessupdatemysql) UpdateOrderItemProcess(ctx context.Context, pizzaID int, orderUUID string) error {
 	s := `
-	INSERT into pizza_processing_updates (pizza_id,order_uuid)
+	INSERT into pizza_completion (pizza_id,order_uuid)
 	VALUES (?,?)
 	
 	`

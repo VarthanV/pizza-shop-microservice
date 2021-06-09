@@ -22,6 +22,6 @@ const (
 )
 
 const(
-	DeadlineForOrderSubmitRequest = 20 * time.Second
+	DeadlineForOrderSubmitRequest = 60 * time.Second
 
 )

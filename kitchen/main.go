@@ -97,10 +97,14 @@ func main() {
 		cookservice = implementation.NewCookService(cookRepo)
 	}
 
+	var processUpdateService processes.OrderProcessUpdateService
+	{
+		repo := mysql.NewOrderProcessUpdateRepoMysql(db)
+		processUpdateService = implementation.NewOrderOrderProcessUpdateImplementation(repo)
+	}
 	var processOrderSvc processes.OrderProcessService
 	{
-		processOrderRepo := mysql.NewProcessOrderRepository(db)
-		processOrderSvc = implementation.NewProcessOrderImplementationService(processOrderRepo, cookservice)
+		processOrderSvc = implementation.NewProcessOrderImplementationService(cookservice, processUpdateService)
 	}
 	var orderRequestsvc processes.OrderRequestService
 	{

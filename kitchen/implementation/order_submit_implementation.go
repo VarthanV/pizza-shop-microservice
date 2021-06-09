@@ -47,6 +47,10 @@ func (op ordersubmitimplementation) SubmitOrderRequest(ctx context.Context, requ
 			op.processOrderService.ProcessOrder(ctx, request, cook.ID)
 			return
 		} else {
+			/*
+				If the cook is not available put the order in the Redis
+				cache and process it later..
+			*/
 			c <- false
 			close(c)
 			return
