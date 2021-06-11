@@ -16,12 +16,15 @@ type DBConnection struct {
 }
 
 const (
-	OrderStatusCreated    = "order-created"
-	OrderStatusProcessing = "order-processing"
-	OrderStatusDelivered  = "order-delivered"
+	OrderStatusWaitingForCook = "Waiting for Cook"
+	OrderStatusProcessing = "Processing"
+	OrderStatusDelivered  = "Complete"
 )
 
-const(
-	DeadlineForOrderSubmitRequest = 60 * time.Second
+const (
+	RedisKeyForOrders = "orders"
+)
 
+const (
+	DeadlineForOrderSubmitRequest = 60 * time.Second
 )

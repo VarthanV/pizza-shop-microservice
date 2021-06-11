@@ -6,6 +6,7 @@ import (
 
 	"github.com/VarthanV/kitchen/processes"
 	"github.com/VarthanV/kitchen/queue"
+	"github.com/VarthanV/kitchen/shared"
 	"github.com/golang/glog"
 )
 
@@ -58,9 +59,10 @@ func (r rmqimplementation) ConsumeOrderDetails(ctx context.Context) {
 				*/
 				glog.Info("Consumed..", isCookAvailable)
 				if isCookAvailable == true {
-					r.PublishOrderStatus(ctx, req.OrderUUID, "Processing")
+					r.PublishOrderStatus(ctx, req.OrderUUID, shared.OrderStatusProcessing)
 				} else {
 					glog.Info("Cook is not available will be updated once the order is process and complete")
+					r.PublishOrderStatus(ctx,req.OrderUUID,shared.OrderStatusWaitingForCook)
 				}
 			}
 		}

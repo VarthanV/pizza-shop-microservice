@@ -5,20 +5,24 @@ import (
 
 	"github.com/VarthanV/kitchen/cooks"
 	"github.com/VarthanV/kitchen/cooks/models"
+	"github.com/VarthanV/kitchen/inmemorydb"
 	"github.com/VarthanV/kitchen/processes"
 	"github.com/VarthanV/kitchen/queue"
+	"github.com/VarthanV/kitchen/shared"
 	"github.com/golang/glog"
 )
 
 type ordersubmitimplementation struct {
 	cookservice         cooks.Service
 	processOrderService processes.OrderProcessService
+	inmemoryOrderSvc    inmemorydb.OrderRequestInMemoryService
 }
 
-func NewOrderRequestImplementation(cooksvc cooks.Service, pos processes.OrderProcessService) processes.OrderRequestService {
+func NewOrderRequestImplementation(cooksvc cooks.Service, pos processes.OrderProcessService, inmemoryOrderSvc inmemorydb.OrderRequestInMemoryService) processes.OrderRequestService {
 	return &ordersubmitimplementation{
 		cookservice:         cooksvc,
 		processOrderService: pos,
+		inmemoryOrderSvc:    inmemoryOrderSvc,
 	}
 }
 
@@ -44,14 +48,16 @@ func (op ordersubmitimplementation) SubmitOrderRequest(ctx context.Context, requ
 				3) Make the cook availability to 0
 
 			*/
-			op.processOrderService.ProcessOrder(ctx, request, cook.ID)
+			op.processOrderService.ProcessOrder(ctx, request, cook.ID, false)
 			return
 		} else {
 			/*
 				If the cook is not available put the order in the Redis
 				cache and process it later..
 			*/
+			glog.Info("Cook is not available so setting the order in redis")
 			c <- false
+			op.inmemoryOrderSvc.SetOrder(ctx, shared.RedisKeyForOrders, request)
 			close(c)
 			return
 		}

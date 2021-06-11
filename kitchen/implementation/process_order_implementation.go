@@ -22,7 +22,7 @@ func NewProcessOrderImplementationService(cs cooks.Service, service processes.Or
 	}
 }
 
-func (poi processorderimplementation) ProcessOrder(ctx context.Context, orderRequest queue.OrderQueueRequest, cookID int) {
+func (poi processorderimplementation) ProcessOrder(ctx context.Context, orderRequest queue.OrderQueueRequest, cookID int, updateStatus bool) {
 	/*
 		1) Mark the cook as not available.
 		2) Loop through each order details.
@@ -44,14 +44,14 @@ func (poi processorderimplementation) ProcessOrder(ctx context.Context, orderReq
 				Just sleeping for 3 seconds to  simulate it as a expensive
 				process
 			*/
-			time.Sleep(3 * time.Second)
+			time.Sleep(300 * time.Second)
 			glog.Info("Pizza %s is ready...", item.PizzaID)
 			poi.service.MarkOrderItemComplete(ctx, item.PizzaID, orderRequest.OrderUUID)
 		}
 		poi.service.MarkOrderComplete(ctx, orderRequest.OrderUUID, cookID)
 		glog.Info("Trying to update status of the order")
 		// Free the cook whether the order fails or not
-		defer poi.cookservice.UpdateCookStatus(ctx,cookID,1)
+		defer poi.cookservice.UpdateCookStatus(ctx, cookID, 1)
 	}()
 
 }

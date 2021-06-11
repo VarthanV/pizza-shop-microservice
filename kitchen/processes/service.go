@@ -23,5 +23,5 @@ type OrderRequestService interface {
 }
 
 type OrderProcessService interface {
-	ProcessOrder(ctx context.Context, orderRequest queue.OrderQueueRequest, cookID int)
+	ProcessOrder(ctx context.Context, orderRequest queue.OrderQueueRequest, cookID int, updateStatus bool)
 }
