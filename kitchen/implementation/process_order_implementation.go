@@ -8,6 +8,7 @@ import (
 	"github.com/VarthanV/kitchen/inmemorydb"
 	"github.com/VarthanV/kitchen/processes"
 	"github.com/VarthanV/kitchen/queue"
+	"github.com/VarthanV/kitchen/shared"
 	"github.com/golang/glog"
 )
 
@@ -15,13 +16,15 @@ type processorderimplementation struct {
 	cookservice       cooks.Service
 	service           processes.OrderProcessUpdateService
 	orderQueueService inmemorydb.OrderRequestInMemoryService
+	messageQueueRepo  queue.QueueRepository
 }
 
-func NewProcessOrderImplementationService(cs cooks.Service, service processes.OrderProcessUpdateService, oq inmemorydb.OrderRequestInMemoryService) processes.OrderProcessService {
+func NewProcessOrderImplementationService(cs cooks.Service, service processes.OrderProcessUpdateService, oq inmemorydb.OrderRequestInMemoryService, mrp queue.QueueRepository) processes.OrderProcessService {
 	return &processorderimplementation{
 		cookservice:       cs,
 		service:           service,
 		orderQueueService: oq,
+		messageQueueRepo:  mrp,
 	}
 }
 
@@ -47,12 +50,17 @@ func (poi processorderimplementation) ProcessOrder(ctx context.Context, orderReq
 				Just sleeping for 60 seconds to  simulate it as a expensive
 				process
 			*/
-			time.Sleep(10 * time.Second)
-			glog.Info("Pizza %s is ready...", item.PizzaID)
-			poi.service.MarkOrderItemComplete(ctx, item.PizzaID, orderRequest.OrderUUID)
+			for i := 0; i < item.Quantity; i++ {
+				time.Sleep(shared.TimeToMakePizza)
+				glog.Info("Pizza %s is ready...", item.PizzaID)
+				poi.service.MarkOrderItemComplete(ctx, item.PizzaID, orderRequest.OrderUUID)
+			}
 		}
+
 		poi.service.MarkOrderComplete(ctx, orderRequest.OrderUUID, cookID)
-		glog.Info("Trying to update status of the order")
+		go poi.messageQueueRepo.PublishOrderStatus(ctx, orderRequest.OrderUUID, shared.OrderStatusDelivered)
+		//Update the status to cook service via message queue
+
 		// Free the cook whether the order fails or not
 		/*
 			See if there is any order in queue if there is orders

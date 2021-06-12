@@ -110,10 +110,11 @@ func main() {
 		repo := redisclient.NewOrderQueueRepo(redisClient)
 		orderRequestInmemoryService = implementation.NewOrderInmemoryService(repo)
 	}
+	queueRepo := queue.NewRabbitRepository(ch)
 
 	var processOrderSvc processes.OrderProcessService
 	{
-		processOrderSvc = implementation.NewProcessOrderImplementationService(cookservice, processUpdateService,orderRequestInmemoryService)
+		processOrderSvc = implementation.NewProcessOrderImplementationService(cookservice, processUpdateService, orderRequestInmemoryService,queueRepo)
 	}
 
 	var orderRequestsvc processes.OrderRequestService
@@ -122,7 +123,7 @@ func main() {
 	}
 	var queueService queue.QueueService
 	{
-		queueRepo := queue.NewRabbitRepository(ch)
+
 		queueService = implementation.NewRabbitMQService(queueRepo, orderRequestsvc)
 	}
 
