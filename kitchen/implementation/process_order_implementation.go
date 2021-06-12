@@ -41,10 +41,10 @@ func (poi processorderimplementation) ProcessOrder(ctx context.Context, orderReq
 		}
 		for _, item := range orderRequest.Details {
 			/*
-				Just sleeping for 3 seconds to  simulate it as a expensive
+				Just sleeping for 60 seconds to  simulate it as a expensive
 				process
 			*/
-			time.Sleep(300 * time.Second)
+			time.Sleep(60 * time.Second)
 			glog.Info("Pizza %s is ready...", item.PizzaID)
 			poi.service.MarkOrderItemComplete(ctx, item.PizzaID, orderRequest.OrderUUID)
 		}

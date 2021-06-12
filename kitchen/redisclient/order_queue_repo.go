@@ -5,6 +5,7 @@ import (
 
 	"github.com/VarthanV/kitchen/inmemorydb"
 	"github.com/go-redis/redis/v8"
+	"github.com/golang/glog"
 )
 
 type orderqueueredis struct {
@@ -18,8 +19,8 @@ func NewOrderQueueRepo(client *redis.Client) inmemorydb.OrderRequestInMemoryRepo
 }
 
 func (oq orderqueueredis) SetOrder(ctx context.Context, key string, request string) error {
-	err := oq.client.Set(ctx, key, request, 0).Err()
-	
+	err := oq.client.Set(ctx, "orders", request, 0).Err()
+	glog.Error(err)
 	return err
 }
 

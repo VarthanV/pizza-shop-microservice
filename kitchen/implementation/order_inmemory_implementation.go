@@ -21,7 +21,7 @@ func NewOrderInmemoryService(repo inmemorydb.OrderRequestInMemoryRepo) inmemoryd
 }
 
 func (o orderinmemoryimpelementation) SetOrder(ctx context.Context, key string, request queue.OrderQueueRequest) error {
-	var ordersInQueue inmemorydb.Queue
+	var ordersInQueue *inmemorydb.Queue
 	var jsonByte []byte
 	/*
 		1) Get item from the queue
@@ -33,18 +33,20 @@ func (o orderinmemoryimpelementation) SetOrder(ctx context.Context, key string, 
 	if err != nil {
 		glog.Errorf("Unable to unmarshal the json...", err)
 		// if err then there are no orders in our system so creating oen
-		ordersInQueue = inmemorydb.Queue{}
-		ordersInQueue.Enqueue(ctx, request)
+		ordersInQueue = inmemorydb.NewQueue()
+		ordersInQueue = ordersInQueue.Enqueue(ctx, request)
+		glog.Infof("%v", ordersInQueue)
 	} else {
 
 		// Set it in the key again
-		ordersInQueue.Enqueue(ctx, request)
-		jsonByte, err = json.Marshal(ordersInQueue)
+		ordersInQueue = ordersInQueue.Enqueue(ctx, request)
+
 		if err != nil {
 			glog.Error("Error in marshalling the json...", err)
 		}
 
 	}
+	jsonByte, err = json.Marshal(ordersInQueue)
 	glog.Info("Orders in queue is...", ordersInQueue.Requests)
 	err = o.repo.SetOrder(ctx, shared.RedisKeyForOrders, string(jsonByte))
 	if err != nil {
