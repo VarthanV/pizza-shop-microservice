@@ -42,7 +42,7 @@ func (r rabbitmqImplementation) ConsumeOrderStatus(ctx context.Context) {
 				glog.Errorf("Unable to unmarshal request from message queue %s ..", err)
 				return
 			}
-			err = r.orderupdateservice.UpdateOrderStatus(orderUpdateMsg.OrderUUID,orderUpdateMsg.status)
+			err = r.orderupdateservice.UpdateOrderStatus(orderUpdateMsg.OrderUUID, orderUpdateMsg.Status)
 			if err != nil {
 				glog.Errorf("Unable to update the status of the order.. %s", err)
 			}
