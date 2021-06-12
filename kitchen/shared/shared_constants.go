@@ -17,8 +17,8 @@ type DBConnection struct {
 
 const (
 	OrderStatusWaitingForCook = "Waiting for Cook"
-	OrderStatusProcessing = "Processing"
-	OrderStatusDelivered  = "Complete"
+	OrderStatusProcessing     = "Processing"
+	OrderStatusDelivered      = "Complete"
 )
 
 const (
@@ -27,4 +27,5 @@ const (
 
 const (
 	DeadlineForOrderSubmitRequest = 60 * time.Second
+	TimeToMakePizza               = 10 * time.Second
 )
