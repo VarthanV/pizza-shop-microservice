@@ -10,7 +10,8 @@ An attempt to create pizza shop using microservice concept.  It has two major se
 
 # DB Diagram of Pizza Microservice
 
-![](./assets/pizza_final.png)
+![Pizza App Order](https://user-images.githubusercontent.com/39593586/121783860-c6909e00-cbce-11eb-99d0-3aee63a537ad.png)
+
 
 # DB Diagram of Kitchen Microservice
 
