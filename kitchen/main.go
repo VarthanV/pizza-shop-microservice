@@ -104,14 +104,16 @@ func main() {
 		repo := mysql.NewOrderProcessUpdateRepoMysql(db)
 		processUpdateService = implementation.NewOrderOrderProcessUpdateImplementation(repo)
 	}
-	var processOrderSvc processes.OrderProcessService
-	{
-		processOrderSvc = implementation.NewProcessOrderImplementationService(cookservice, processUpdateService)
-	}
+
 	var orderRequestInmemoryService inmemorydb.OrderRequestInMemoryService
 	{
 		repo := redisclient.NewOrderQueueRepo(redisClient)
 		orderRequestInmemoryService = implementation.NewOrderInmemoryService(repo)
+	}
+
+	var processOrderSvc processes.OrderProcessService
+	{
+		processOrderSvc = implementation.NewProcessOrderImplementationService(cookservice, processUpdateService,orderRequestInmemoryService)
 	}
 
 	var orderRequestsvc processes.OrderRequestService
@@ -124,14 +126,14 @@ func main() {
 		queueService = implementation.NewRabbitMQService(queueRepo, orderRequestsvc)
 	}
 
-	glog.Info(cookservice)
 	r := gin.Default()
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "pong",
 		})
 	})
+
 	ctx := context.Background()
 	queueService.ConsumeOrderDetails(ctx)
-	r.Run() // l
+	r.Run()
 }

@@ -25,5 +25,10 @@ func (oq orderqueueredis) SetOrder(ctx context.Context, key string, request stri
 }
 
 func (oq orderqueueredis) GetOrder(ctx context.Context, key string) string {
-	return ""
+	val ,err := oq.client.Get(ctx,key).Result()
+	if err != nil {
+		glog.Errorf("Error in g")
+	}
+	return val
+
 }

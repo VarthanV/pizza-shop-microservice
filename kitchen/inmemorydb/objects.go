@@ -10,21 +10,11 @@ type Queue struct {
 	Requests []queue.OrderQueueRequest `json:"order_requests"`
 }
 
-
 func NewQueue() *Queue {
 	return &Queue{}
 }
 
-func (q Queue) Dequeue(ctx context.Context) *queue.OrderQueueRequest {
-	if len(q.Requests) == 0 {
-		return nil
-	}
-	order := q.Requests[0]
-	q.Requests = append(q.Requests, q.Requests[1:]...)
-	return &order
-}
-
-func (q Queue) Enqueue(ctx context.Context, request queue.OrderQueueRequest) *Queue{
-	q.Requests = append(q.Requests, request) 
-	return &q 
+func (q Queue) Enqueue(ctx context.Context, request queue.OrderQueueRequest) *Queue {
+	q.Requests = append(q.Requests, request)
+	return &q
 }
