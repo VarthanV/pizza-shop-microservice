@@ -24,7 +24,21 @@ services:
       MYSQL_DATABASE: "pizza_shop"
       MYSQL_PASSWORD: "root1234"
     networks: 
-        - pizza-default  
+        - pizza-default      
+
+  prometheus:
+    image: prom/prometheus:v2.24.0
+    volumes:
+      - ./prometheus/:/etc/prometheus/
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    ports:
+      - 9090:9090
+    restart: always
 
   rabbitmq:
     image: "rabbitmq:3-management"
@@ -45,6 +59,7 @@ services:
       - pizza-default
   api:
     build: .
+    container_name: pizza
     restart: "on-failure"
     environment:
       - HOSTNAMERABBIT=rabbitmq
@@ -67,3 +82,4 @@ networks:
 volumes:
   my-db:
   redis-data:
+  prometheus_data:

@@ -20,7 +20,7 @@ func NewOrderUpdateRepository(db *sql.DB) pizza.OrderUpdateRepo {
 func (our orderupdaterepository) UpdateOrderStatus(ctx context.Context, orderUUID string, status string) error {
 	s := `
 	UPDATE orders
-	SET status = ?
+	SET order_status = ?
 	WHERE uuid = ?	
 	`
 	_, err := our.db.ExecContext(ctx, s, status, orderUUID)

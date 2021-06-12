@@ -4,11 +4,15 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/VarthanV/pizza/message_queue"
 	"github.com/VarthanV/pizza/migrations"
 	"github.com/VarthanV/pizza/pizza/services"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/streadway/amqp"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -188,7 +192,24 @@ func main() {
 	}
 	//Start consuming messages from the queue
 	queueService.ConsumeOrderStatus(ctx)
+
+	// Prometheus routes
+	router.Handle(http.MethodGet, "/prometheus", gin.WrapH(promhttp.Handler()))
 	// Run the router
+	var responseStatus = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "response_status",
+			Help: "Status of HTTP response",
+		},
+		[]string{"status"},
+	)
+	router.GET("/ping", func(c *gin.Context) {
+		responseStatus.WithLabelValues(strconv.Itoa(200)).Inc()
+		c.JSON(200, gin.H{
+			"message": "pong",
+		})
+	})
+	prometheus.Register(responseStatus)
 	router.Run(":8080")
 
 }
