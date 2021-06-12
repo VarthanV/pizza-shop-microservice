@@ -92,10 +92,10 @@ func (c cookrepomysql) UpdateCookStatus(ctx context.Context, cookID int, status 
 	`
 	_, err := c.db.ExecContext(ctx, s, status, cookID)
 	if err != nil {
-		glog.Error("Error in updating cook status...")
+		glog.Error("Error in updating cook status...",err)
 		return err
 	} else {
-		glog.Info("Updated cook status")
+		glog.Info("Updated cook status to...",status)
 	}
 	return nil
 }

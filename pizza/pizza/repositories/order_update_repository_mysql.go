@@ -24,5 +24,8 @@ func (our orderupdaterepository) UpdateOrderStatus(ctx context.Context, orderUUI
 	WHERE uuid = ?	
 	`
 	_, err := our.db.ExecContext(ctx, s, status, orderUUID)
+	if err != nil {
+		glog.Errorf("Error is %s",err)
+	}
 	return err
 }

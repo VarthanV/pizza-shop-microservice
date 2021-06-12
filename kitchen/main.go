@@ -8,10 +8,12 @@ import (
 
 	"github.com/VarthanV/kitchen/cooks"
 	implementation "github.com/VarthanV/kitchen/implementation"
+	"github.com/VarthanV/kitchen/inmemorydb"
 	"github.com/VarthanV/kitchen/migrations"
 	"github.com/VarthanV/kitchen/mysql"
 	"github.com/VarthanV/kitchen/processes"
 	"github.com/VarthanV/kitchen/queue"
+	"github.com/VarthanV/kitchen/redisclient"
 	"github.com/VarthanV/kitchen/seeder"
 	"github.com/VarthanV/kitchen/shared"
 	"github.com/gin-gonic/gin"
@@ -97,14 +99,24 @@ func main() {
 		cookservice = implementation.NewCookService(cookRepo)
 	}
 
+	var processUpdateService processes.OrderProcessUpdateService
+	{
+		repo := mysql.NewOrderProcessUpdateRepoMysql(db)
+		processUpdateService = implementation.NewOrderOrderProcessUpdateImplementation(repo)
+	}
 	var processOrderSvc processes.OrderProcessService
 	{
-		processOrderRepo := mysql.NewProcessOrderRepository(db)
-		processOrderSvc = implementation.NewProcessOrderImplementationService(processOrderRepo, cookservice)
+		processOrderSvc = implementation.NewProcessOrderImplementationService(cookservice, processUpdateService)
 	}
+	var orderRequestInmemoryService inmemorydb.OrderRequestInMemoryService
+	{
+		repo := redisclient.NewOrderQueueRepo(redisClient)
+		orderRequestInmemoryService = implementation.NewOrderInmemoryService(repo)
+	}
+
 	var orderRequestsvc processes.OrderRequestService
 	{
-		orderRequestsvc = implementation.NewOrderRequestImplementation(cookservice, processOrderSvc)
+		orderRequestsvc = implementation.NewOrderRequestImplementation(cookservice, processOrderSvc, orderRequestInmemoryService)
 	}
 	var queueService queue.QueueService
 	{
