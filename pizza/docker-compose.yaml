@@ -31,6 +31,8 @@ services:
     volumes:
       - ./prometheus/:/etc/prometheus/
       - prometheus_data:/prometheus
+    networks: 
+      - pizza-default  
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
@@ -39,6 +41,15 @@ services:
     ports:
       - 9090:9090
     restart: always
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-storage:/var/lib/grafana  
+    networks: 
+     - pizza-default  
 
   rabbitmq:
     image: "rabbitmq:3-management"
@@ -83,3 +94,4 @@ volumes:
   my-db:
   redis-data:
   prometheus_data:
+  grafana-storage:

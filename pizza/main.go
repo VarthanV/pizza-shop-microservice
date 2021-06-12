@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"net/http"
 	"os"
 	"strconv"
 
@@ -33,6 +32,14 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/golang/glog"
 )
+
+func prometheusHandler() gin.HandlerFunc {
+	h := promhttp.Handler()
+
+	return func(c *gin.Context) {
+		h.ServeHTTP(c.Writer, c.Request)
+	}
+}
 
 func main() {
 	var db *sql.DB
@@ -194,7 +201,7 @@ func main() {
 	queueService.ConsumeOrderStatus(ctx)
 
 	// Prometheus routes
-	router.Handle(http.MethodGet, "/prometheus", gin.WrapH(promhttp.Handler()))
+
 	// Run the router
 	var responseStatus = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
@@ -203,13 +210,14 @@ func main() {
 		},
 		[]string{"status"},
 	)
+	router.GET("/metrics", prometheusHandler())
 	router.GET("/ping", func(c *gin.Context) {
 		responseStatus.WithLabelValues(strconv.Itoa(200)).Inc()
 		c.JSON(200, gin.H{
 			"message": "pong",
 		})
 	})
-	prometheus.Register(responseStatus)
+	prometheus.MustRegister(responseStatus)
 	router.Run(":8080")
 
 }
