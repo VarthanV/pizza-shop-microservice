@@ -5,6 +5,7 @@ import (
 	"database/sql"
 
 	"github.com/VarthanV/pizza/pizza"
+	"github.com/golang/glog"
 )
 
 type orderupdaterepository struct {
