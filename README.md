@@ -8,6 +8,15 @@ An attempt to create pizza shop using microservice concept.  It has two major se
 ![Pizza (1)](https://user-images.githubusercontent.com/39593586/121798118-178daa00-cc42-11eb-9ce9-31810ba795a3.png)
 
 
+## Highlights
+- Containerized both the microservices using Docker.
+- Used Message queue to communicate between Pizza and Kitchen Microservice.
+- Implemented worker pool to have fixed number of workers in Kitchen and process orders.
+- Stored the incoming orders from Message queue to Redis when there are no available free cooks and to process later when a cook is available.
+- Added Prometheus for event monitoring and Grafana for visualisation of data and events.
+
+
+
 ## DB Diagram of Pizza Microservice
 
 ![Pizza App Order](https://user-images.githubusercontent.com/39593586/121783860-c6909e00-cbce-11eb-99d0-3aee63a537ad.png)
