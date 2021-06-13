@@ -5,7 +5,7 @@ An attempt to create pizza shop using microservice concept.  It has two major se
 
 # Architecture Diagram
 
-![Pizza](https://user-images.githubusercontent.com/39593586/121783369-c0e58900-cbcb-11eb-8cef-c093e023f0bb.png)
+![Pizza (1)](https://user-images.githubusercontent.com/39593586/121798118-178daa00-cc42-11eb-9ce9-31810ba795a3.png)
 
 
 # DB Diagram of Pizza Microservice
