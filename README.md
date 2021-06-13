@@ -17,3 +17,6 @@ An attempt to create pizza shop using microservice concept.  It has two major se
 
 ![Kitchen Microservice](https://user-images.githubusercontent.com/39593586/121783797-508c3700-cbce-11eb-94f8-f665da6159c7.png)
 
+# Prometheus Metrics and Grafana for Visualisation
+
+<img width="1440" alt="Screenshot 2021-06-13 at 12 55 15 PM" src="https://user-images.githubusercontent.com/39593586/121798920-aef4fc00-cc46-11eb-9fa4-2380c14ac1ab.png">
