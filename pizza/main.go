@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/VarthanV/pizza/clients"
 	"github.com/VarthanV/pizza/message_queue"
 	"github.com/VarthanV/pizza/migrations"
 	"github.com/VarthanV/pizza/pizza/services"
@@ -42,6 +43,7 @@ func prometheusHandler() gin.HandlerFunc {
 }
 
 func main() {
+	prometheusClient := clients.NewPrometheusClient()
 	var db *sql.DB
 	{
 		var err error
@@ -169,7 +171,7 @@ func main() {
 	userHandler := handlers.NewUserHandler(usersvc)
 	pizzaHandlers := handlers.NewPizzaHandler(pizzaService)
 	cartHandlers := handlers.NewCartHandler(cartService)
-	orderHandlers := handlers.NewOrderHandler(orderService, orderItemService, utilityservice)
+	orderHandlers := handlers.NewOrderHandler(orderService, orderItemService, utilityservice, prometheusClient)
 	// Initializing middleware
 	var middleware middlewares.Service
 	{
@@ -218,6 +220,7 @@ func main() {
 		})
 	})
 	prometheus.MustRegister(responseStatus)
+	prometheusClient.RegisterMetrics()
 	router.Run(":8080")
 
 }

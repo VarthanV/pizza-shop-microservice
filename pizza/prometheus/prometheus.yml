@@ -3,6 +3,9 @@ global:
   evaluation_interval: 15s
 
 scrape_configs:
-  - job_name: prometheus
+  - job_name: pizza
     static_configs:
       - targets: ['pizza:8080']
+  - job_name: kitchen
+    static_configs:
+      - targets: ['kitchen_api:8003']    
