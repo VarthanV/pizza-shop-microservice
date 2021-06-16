@@ -12,8 +12,7 @@ An attempt to create pizza shop using microservice concept.  It has two major se
 - Containerized both the microservices using Docker.
 - Used Message queue to communicate between Pizza and Kitchen Microservice.
 - Implemented worker pool to have fixed number of workers in Kitchen and process orders.
-- Stored the incoming orders from Message queue to Redis when there are no available free cooks and to process later when a cook is available.
-- Added Prometheus for event monitoring and Grafana for visualisation of data and events.
+- Added Prometheus for event monitoring and Grafana for monitoring of those events.
 
 
 
